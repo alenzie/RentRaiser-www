@@ -174,7 +174,10 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
   position:fixed;z-index:56;
   /* the wallet's line, mirrored — the two HUD pieces read as a pair */
   top:clamp(104px,15vh,164px);
-  right:clamp(14px,3vw,44px);
+  /* Wider margin than the wallet's matching 44px. They are optically balanced,
+     not mathematically: the radio is a far bigger block, so an equal gap reads
+     as it being crushed against the edge. */
+  right:clamp(18px,4vw,68px);
   transform-origin:100% 50%;
   will-change:transform;
 }
