@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RENT RAISER — Line City Properties</title>
+<meta name="description" content="Line City Properties presents RENT RAISER: an idle landlord-tycoon game of ten hand-inked residences, from the $50 Rundown Duplex to the $1,000,000,000 Titan Spire. Join the waiting list. Artificial scarcity, included.">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preload" href="assets/fonts/fraunces-900.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/archivo-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* ============================================================
+   TYPE — three families, no more.
+   Fraunces  : display / editorial voice
+   Archivo   : UI, labels, numerals
+   Caveat    : the red pen. Marketing's own margin notes.
+   ============================================================ */
+@font-face{font-family:'Fraunces';src:url(assets/fonts/fraunces-400.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Fraunces';src:url(assets/fonts/fraunces-600.woff2) format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Fraunces';src:url(assets/fonts/fraunces-900.woff2) format('woff2');font-weight:900;font-display:swap}
+@font-face{font-family:'Archivo';src:url(assets/fonts/archivo-400.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Archivo';src:url(assets/fonts/archivo-500.woff2) format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Archivo';src:url(assets/fonts/archivo-700.woff2) format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Caveat';src:url(assets/fonts/caveat-700.woff2) format('woff2');font-weight:700;font-display:swap}
+
+:root{
+  --paper:#FFFFFF;
+  --panel:#F2F2ED;
+  --ground:#E0E0DB;
+  --ink:#000000;
+  --char:#333333;
+  --soft:#5A5A55;
+  --rule:#E4E4DE;
+  --terra:#B86B66;
+  --terra-ink:#96504B;
+  --sky:#ADDBDE;
+  /* money is load-bearing in a clicker, so it gets a token — a ledger green
+     that sits with terracotta instead of fighting it. */
+  --money:#2F6B4F;
+  --money-soft:#E7F0EA;
+  --red-pen:#CC3333;
+
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Archivo',system-ui,sans-serif;
+  --hand:'Caveat',cursive;
+  --wrap:1160px;
+  --pad:clamp(20px,5vw,48px);
+  --head-h:0px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  background:var(--paper);color:var(--char);
+  font-family:var(--sans);font-size:1rem;line-height:1.7;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+/* height:auto matters: the images carry width/height attributes (good — they
+   reserve layout space), but those apply as presentational hints. Any rule that
+   sets width alone would otherwise leave the attribute's pixel height in force
+   and stretch the image. Rules that genuinely want a height override this. */
+img,svg{display:block;max-width:100%;height:auto}
+a{color:var(--terra-ink)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--terra);outline-offset:2px;border-radius:2px}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:12px;top:-60px;z-index:90;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;transition:top .2s}
+.skip:focus{top:12px}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--pad)}
+[hidden]{display:none !important}
+
+/* ---------- scroll reveals ---------- */
+.rev{opacity:0;transform:translateY(18px);transition:opacity .7s ease var(--d,0s),transform .7s cubic-bezier(.22,.9,.3,1) var(--d,0s)}
+.rev.in{opacity:1;transform:none}
+
+/* ---------- section grammar (the open-house spine) ---------- */
+section{padding-block:clamp(4.25rem,9vw,7.5rem);scroll-margin-top:104px}
+.eyebrow{
+  font:700 .72rem/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;
+  color:var(--terra-ink);margin-bottom:1rem;
+}
+.eyebrow::after{content:"";display:block;width:44px;border-top:1px solid var(--terra);margin-top:.9rem}
+h2{
+  font:600 clamp(1.9rem,3.8vw,2.75rem)/1.15 var(--serif);
+  letter-spacing:-.01em;color:var(--ink);margin-bottom:1.1rem;text-wrap:balance;
+}
+h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
+.intro{max-width:58ch;color:var(--soft);margin-bottom:clamp(2rem,4vw,3.25rem)}
+.annot{
+  font-family:var(--hand);font-weight:700;color:var(--red-pen);
+  font-size:clamp(1.2rem,2.3vw,1.5rem);line-height:1.15;
+  display:inline-block;transform:rotate(-1.8deg);max-width:36ch;
+}
+.annot--r{transform:rotate(1.4deg)}
+
+/* ============================================================
+   NAV — arrives late, well after the wire has already pinned.
+   ============================================================ */
+.nav-bar{
+  position:fixed;inset:0 0 auto 0;z-index:60;
+  background:var(--paper);border-bottom:1px solid var(--rule);
+  transform:translateY(-101%);transition:transform .45s cubic-bezier(.22,.9,.3,1);
+}
+.nav-bar.up{transform:none}
+.nav{
+  display:flex;align-items:center;gap:clamp(12px,2vw,22px);
+  max-width:var(--wrap);margin-inline:auto;padding:11px var(--pad);
+}
+.brand{
+  font:900 1.12rem/1 var(--serif);letter-spacing:-.01em;color:var(--ink);
+  text-decoration:none;white-space:nowrap;
+}
+.nav-links{display:flex;gap:clamp(10px,1.6vw,20px);margin-left:auto}
+.nav-links a{
+  font:500 .82rem/1 var(--sans);letter-spacing:.02em;color:var(--char);
+  text-decoration:none;white-space:nowrap;
+}
+.nav-links a:hover{color:var(--terra-ink)}
+
+/* ============================================================
+   THE WALLET — not chrome. A thing that follows you down the page,
+   drifting a beat behind your scroll and never quite settling.
+   Three nested layers so the transforms don't fight:
+     .wallet-dock  → JS owns transform (the scroll lag)
+     .wallet-float → CSS owns transform (the idle sway)
+     .wallet       → the button; owns the bump on payout
+   ============================================================ */
+.wallet-dock{
+  position:fixed;z-index:55;
+  left:clamp(14px,3vw,44px);top:clamp(104px,15vh,164px);
+  opacity:0;pointer-events:none;
+  transition:opacity .55s ease;
+  will-change:transform;
+}
+.wallet-dock.up{opacity:1;pointer-events:auto}
+.wallet-float{
+  animation:wsway 7.5s ease-in-out infinite alternate;
+  transform-origin:50% 130%;   /* swings from a point below, like it's hanging */
+}
+@keyframes wsway{
+  from{transform:translateY(-4px) rotate(-1.7deg)}
+  to  {transform:translateY(5px)  rotate(1.7deg)}
+}
+.wallet{
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+  background:var(--money-soft);border:2px solid var(--ink);border-radius:10px;
+  padding:9px 13px 9px 11px;box-shadow:0 4px 0 var(--ink);
+  transition:transform .18s cubic-bezier(.3,1.5,.5,1);
+}
+.wallet:hover{transform:translateY(-1px)}
+.wallet.bump{transform:scale(1.07)}
+.wallet svg{flex:none;width:30px;height:25px;color:var(--ink)}
+.wallet-nums{display:flex;flex-direction:column;line-height:1.15;align-items:flex-start}
+.wallet-total{
+  font:700 1.06rem/1.15 var(--sans);color:var(--money);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+}
+.wallet-rate{
+  font:500 .6rem/1.15 var(--sans);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--soft);font-variant-numeric:tabular-nums;
+}
+
+/* ============================================================
+   LINE CITY RADIO
+   Sits out in the open on the hero, over the skyline, then flies to the
+   top-right corner as you scroll — one continuous journey, driven by scroll
+   progress, not a snap between two states.
+   ============================================================ */
+/* Three layers again, same reason as the wallet — one element cannot hold three
+   transforms. dock = JS (the flight from the hero + the scroll lag);
+   .radio = CSS (the idle drift); the buttons inside keep their own presses. */
+.radio-dock{
+  position:fixed;z-index:56;
+  /* the wallet's line, mirrored — the two HUD pieces read as a pair */
+  top:clamp(104px,15vh,164px);
+  right:clamp(14px,3vw,44px);
+  will-change:transform;
+}
+.radio{
+  position:relative;              /* anchors the note, so it drifts along with the panel */
+  /* stacked, not strung out in a line — the masthead sits ON the player, which is
+     what keeps it narrow enough to live in the right margin */
+  display:flex;flex-direction:column;align-items:stretch;
+  background:var(--paper);border:2px solid var(--ink);border-radius:10px;
+  box-shadow:0 4px 0 var(--ink);
+  transform-origin:50% 50%;
+  animation:rdrift 11s ease-in-out infinite alternate;
+}
+/* never quite settles on its mark */
+@keyframes rdrift{
+  from{transform:translate(-4px,-5px) rotate(-1.15deg)}
+  to  {transform:translate(5px,6px)   rotate(1.25deg)}
+}
+.radio-chip{
+  display:flex;align-items:center;justify-content:center;
+  padding:5px 12px;
+  border-bottom:2px solid var(--ink);
+  border-radius:8px 8px 0 0;      /* 8, not 10 — it sits inside a 2px border */
+  background:var(--terra-ink);color:#fff;
+  font:700 .58rem/1 var(--sans);letter-spacing:.14em;white-space:nowrap;
+}
+.radio-body{display:flex;align-items:center;gap:8px;padding:7px 9px}
+.radio-btn{
+  flex:none;width:28px;height:28px;border:2px solid var(--ink);border-radius:6px;
+  background:var(--panel);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.62rem;line-height:1;
+  transition:background .18s ease,transform .1s ease;
+}
+.radio-btn:hover{background:var(--money-soft)}
+.radio-btn:active{transform:translateY(1px)}
+.radio-now{
+  display:flex;flex-direction:column;line-height:1.2;
+  flex:1;min-width:0;max-width:126px;overflow:hidden;
+}
+.radio-title{
+  font:600 .82rem/1.25 var(--serif);color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.radio-artist{
+  font:500 .58rem/1.3 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* four bars that only dance while something is actually playing */
+.radio-eq{display:flex;align-items:flex-end;gap:2px;height:16px;width:18px;flex:none}
+.radio-eq i{
+  flex:1;background:var(--money);height:100%;
+  transform:scaleY(.22);transform-origin:50% 100%;
+  border-radius:1px;
+}
+.radio.playing .radio-eq i{animation:eq .85s ease-in-out infinite alternate}
+.radio.playing .radio-eq i:nth-child(2){animation-duration:.62s;animation-delay:-.2s}
+.radio.playing .radio-eq i:nth-child(3){animation-duration:1.05s;animation-delay:-.5s}
+.radio.playing .radio-eq i:nth-child(4){animation-duration:.74s;animation-delay:-.35s}
+@keyframes eq{from{transform:scaleY(.18)}to{transform:scaleY(1)}}
+
+/* the tagline only exists while the radio is still out on the hero */
+.radio-note{
+  position:absolute;top:calc(100% + 10px);left:0;right:0;
+  text-align:center;white-space:nowrap;
+  font:italic 400 .78rem/1 var(--serif);color:var(--soft);
+  opacity:var(--note,1);transition:opacity .25s ease;pointer-events:none;
+}
+
+@media (max-width:700px){
+  .radio-now{max-width:100px}
+  .radio-chip{font-size:.5rem;padding:4px 8px}
+  .radio-note{display:none}
+}
+
+/* ============================================================
+   LINE CITY WIRE — lives in the flow, so you meet it at the seam
+   between the hero and the page. Then it pins. When the nav finally
+   turns up, the wire drops to sit underneath it.
+   ============================================================ */
+.wire{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:stretch;
+  background:var(--paper);
+  border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+  transition:top .45s cubic-bezier(.22,.9,.3,1);
+}
+body.nav-up .wire{top:var(--nav-h,54px)}
+.wire-chip{
+  flex:none;display:flex;align-items:center;padding:5px 11px;
+  background:var(--terra-ink);color:#fff;
+  font:700 .62rem/1 var(--sans);letter-spacing:.14em;
+  border-right:2px solid var(--ink);
+}
+.wire-win{flex:1;overflow:hidden;display:flex;align-items:center}
+.wire-track{display:flex;width:max-content;animation:wire 90s linear infinite}
+.wire.paused .wire-track{animation-play-state:paused}
+.wire-set{display:flex;white-space:nowrap}
+.wi{padding:6px 0 6px 2.8em;font:500 .8rem/1 var(--sans);color:var(--char)}
+.wi b{color:var(--money);font-weight:700;padding-left:.6em;font-variant-numeric:tabular-nums}
+@keyframes wire{to{transform:translateX(-50%)}}
+.wire-pause{
+  flex:none;width:38px;border-left:2px solid var(--ink);
+  color:var(--char);font-size:.62rem;line-height:1;
+}
+.wire-pause:hover{color:var(--terra-ink)}
+
+/* ============================================================
+   HERO — the classy expansive sky. No chrome. Nothing sells yet.
+   ============================================================ */
+.hero{
+  position:relative;min-height:96vh;min-height:96svh;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;
+}
+.hero-media{position:absolute;inset:0;overflow:hidden}
+.hero-art{position:absolute;left:0;right:0;top:-12%;height:128%;will-change:transform}
+.sway-x{height:100%;animation:swx 13s ease-in-out infinite alternate}
+.hero-img{
+  height:100%;
+  background:url(assets/img/background.webp) center 44%/cover no-repeat;
+  animation:swy 8.5s ease-in-out infinite alternate;
+}
+@keyframes swx{from{transform:translateX(-.9%)}to{transform:translateX(.9%)}}
+@keyframes swy{from{transform:translateY(-.7%) scale(1.05)}to{transform:translateY(.7%) scale(1.05)}}
+.hero-wash{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(173,219,222,.45),rgba(173,219,222,0) 46%),
+             linear-gradient(0deg,rgba(255,255,255,.65),rgba(255,255,255,0) 30%);
+}
+.plaque{
+  position:relative;z-index:2;width:100%;margin-top:clamp(1.4rem,3.5vh,2.5rem);text-align:center;
+  font:700 .78rem/1 var(--sans);letter-spacing:.34em;text-transform:uppercase;color:var(--ink);
+  padding-block:.85rem;
+  border-top:1px solid var(--terra);border-bottom:1px solid var(--terra);
+}
+.plaque small{
+  display:block;margin-top:.55rem;font:500 .62rem/1 var(--sans);
+  letter-spacing:.22em;color:var(--soft);
+}
+.hero-core{
+  position:relative;z-index:2;text-align:center;width:100%;
+  margin-top:clamp(2.5rem,8vh,5.5rem);padding-inline:var(--pad);max-width:1100px;
+  background:radial-gradient(65% 75% at 50% 42%,rgba(255,255,255,.9),rgba(255,255,255,0));
+}
+.presents{
+  font:500 .72rem/1 var(--sans);letter-spacing:.3em;text-transform:uppercase;
+  color:var(--soft);margin-bottom:1.4rem;
+}
+h1{
+  font:900 clamp(2.55rem,11.5vw,8.5rem)/.95 var(--serif);
+  letter-spacing:-.015em;color:#0D0D0D;text-wrap:balance;
+}
+.hero-rule{width:min(150px,30vw);margin:1.6rem auto 1.4rem;border-top:2px solid var(--terra);position:relative}
+.hero-rule::after{
+  content:"";position:absolute;left:50%;top:-5px;width:8px;height:8px;
+  background:var(--terra);transform:translateX(-50%) rotate(45deg);
+}
+.hero-tag{
+  font:italic 400 clamp(1.05rem,2.2vw,1.45rem)/1.5 var(--serif);
+  color:var(--char);max-width:34ch;margin-inline:auto;
+  text-shadow:0 0 10px rgba(255,255,255,.95),0 0 3px rgba(255,255,255,.95);
+}
+.hero-cta{display:flex;gap:1.2rem;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:2.1rem}
+.btn{
+  display:inline-block;background:var(--ink);color:var(--paper);text-decoration:none;
+  font:700 .8rem/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;
+  padding:1.05rem 1.9rem;border-radius:8px;border:2px solid var(--ink);
+  transition:background .2s,transform .2s;
+}
+.btn:hover{background:var(--terra-ink);border-color:var(--terra-ink);transform:translateY(-1px)}
+.ghost{
+  font:500 .8rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--terra-ink);text-decoration:none;border-bottom:1px solid var(--terra);
+  padding-bottom:.3rem;
+}
+.ghost:hover{color:var(--ink);border-color:var(--ink)}
+.hero-note{
+  margin-top:1.5rem;font-size:.85rem;color:var(--char);
+  text-shadow:0 0 10px rgba(255,255,255,.95),0 0 3px rgba(255,255,255,.95);
+}
+
+/* ============================================================
+   THE DEMONSTRATION — Norm, the phone, the collected chip
+   ============================================================ */
+/* no border-top — the wire sits directly above and already draws that line */
+#demo{background:var(--panel)}
+.demo-grid{
+  display:grid;grid-template-columns:1fr minmax(240px,300px);
+  gap:clamp(2rem,6vw,5rem);align-items:center;
+}
+.stagebox{position:relative;justify-self:center;width:min(292px,74vw)}
+.phone{
+  border:3px solid var(--ink);border-radius:26px;overflow:hidden;background:var(--paper);
+  aspect-ratio:9/18.5;box-shadow:0 14px 0 rgba(0,0,0,.16);
+}
+.phone img{width:100%;height:100%;object-fit:cover}
+.chip{
+  position:absolute;top:8%;right:-9%;
+  background:var(--money-soft);color:var(--money);border:2px solid var(--ink);border-radius:8px;
+  padding:6px 12px;font:700 .8rem/1 var(--sans);box-shadow:0 3px 0 var(--ink);
+  animation:pulse 1.7s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+/* Norm is a button. He floats, he hops when you touch him, and he runs the same
+   sprite cycle he runs in the game. */
+.norm-act{
+  position:absolute;bottom:-16px;left:-36%;width:54%;
+  padding:0;border:0;background:none;
+}
+.norm-hop{display:block;transform-origin:50% 100%}
+.norm-hero{
+  /* height:auto is load-bearing — the <img> carries a height attribute, which
+     applies as a presentational hint. Set width alone and Norm renders 654px tall. */
+  width:100%;height:auto;
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.14));
+  animation:bob 5.5s ease-in-out infinite alternate;transform-origin:50% 100%;
+}
+@keyframes bob{from{transform:rotate(-1.4deg) translateY(0)}to{transform:rotate(1.4deg) translateY(-6px)}}
+.bubble{
+  position:absolute;background:var(--paper);border:2px solid var(--ink);border-radius:8px;
+  padding:10px 14px;font:500 .85rem/1.4 var(--sans);color:var(--char);
+  max-width:210px;box-shadow:0 3px 0 rgba(0,0,0,.2);
+}
+.bubble::after{
+  content:"";position:absolute;bottom:-9px;left:24px;width:13px;height:13px;
+  background:inherit;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);
+  transform:rotate(45deg) translateY(-4px);
+}
+.bubble--hero{
+  left:-30%;bottom:63%;
+  animation:bob 4.6s ease-in-out -2s infinite alternate-reverse;
+  transform-origin:22% 100%;   /* grows out of its own tail */
+}
+/* the quip pop, lifted from NormQuipBubble.gd: 0.3s, starts at 0.3 scale,
+   overshoots to 1.15. Replaces the sway for its duration, then the sway resumes. */
+.bubble--hero.pop{animation:qpop .32s cubic-bezier(.3,1.5,.5,1)}
+@keyframes qpop{
+  0%  {transform:scale(.30);opacity:0}
+  60% {transform:scale(1.15);opacity:1}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* ============================================================
+   FEATURES
+   ============================================================ */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:clamp(16px,2vw,22px)}
+.card{
+  background:var(--paper);border:2px solid var(--ink);border-radius:8px;
+  padding:22px 20px;box-shadow:0 4px 0 var(--ink);
+  transform-origin:50% 100%;
+}
+.card h3{margin-bottom:.6rem}
+.card p{font-size:.9rem;line-height:1.6;color:var(--soft)}
+.tag{
+  display:inline-block;margin-top:.9rem;
+  font:700 .62rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--money);background:var(--money-soft);
+  border:1.5px solid var(--ink);border-radius:6px;padding:5px 9px;
+}
+
+/* ============================================================
+   RESIDENCES
+   ============================================================ */
+#residences{background:var(--paper)}
+.res-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:clamp(26px,3vw,38px) clamp(14px,1.8vw,22px);align-items:end;
+}
+.res{border:2px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--paper);transform-origin:50% 100%}
+.plate{
+  background:var(--hex);border-bottom:2px solid var(--ink);
+  display:flex;align-items:flex-end;justify-content:center;padding:20px 12px 0;
+}
+.plate svg{overflow:visible}
+.cube{
+  transform-origin:50% 100%;animation:lean 7s ease-in-out infinite alternate;animation-delay:var(--cd,0s);
+  fill:rgba(255,255,255,.55);stroke:var(--ink);stroke-width:2;stroke-linejoin:round;
+}
+@keyframes lean{from{transform:rotate(-.65deg)}to{transform:rotate(.65deg)}}
+.res-body{padding:16px 16px 18px}
+.res-no{font:700 .6rem/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:.55rem}
+.res-name{font:600 1.18rem/1.2 var(--serif);color:var(--ink);letter-spacing:-.01em}
+.res-price{font:600 1.02rem/1.3 var(--serif);color:var(--terra-ink);margin-top:.25rem;font-variant-numeric:tabular-nums}
+.res-desc{font-size:.82rem;line-height:1.6;color:var(--soft);margin-top:.6rem}
+.res-note{margin-top:clamp(1.8rem,3vw,2.6rem);max-width:52ch;font:italic 400 .98rem/1.65 var(--serif);color:var(--soft)}
+.res-note::before{content:"◆";color:var(--terra);font-size:.55rem;vertical-align:.25em;margin-right:.7rem}
+
+/* ============================================================
+   PARTICULARS / AMENITIES
+   ============================================================ */
+#particulars .sheet{border-top:2px solid var(--ink)}
+.row{display:grid;grid-template-columns:230px 1fr;gap:12px 40px;padding-block:1.05rem;border-bottom:1px solid var(--rule)}
+.row dt{font:700 .68rem/1.9 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--ink)}
+.row dd{color:var(--char);font-size:.95rem}
+.row dd em{font:italic 400 1em/inherit var(--serif);color:var(--terra-ink)}
+
+#amenities{background:var(--panel)}
+.amen{display:grid;grid-template-columns:1fr 1fr;gap:1rem 3.5rem;list-style:none}
+.amen li{
+  position:relative;padding-left:1.5rem;font-size:.95rem;color:var(--char);
+  border-bottom:1px solid var(--rule);padding-bottom:1rem;
+}
+.amen li::before{content:"◆";position:absolute;left:0;top:.35em;font-size:.5rem;color:var(--terra)}
+.amen li strong{font:600 1.02rem/1.5 var(--serif);color:var(--ink)}
+
+/* ============================================================
+   PERSONNEL — the crows. They float. They answer back.
+   ============================================================ */
+#managers{background:var(--paper)}
+.crew{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:clamp(4px,1.6vw,28px);flex-wrap:nowrap;
+  margin-bottom:clamp(1.6rem,3vw,2.4rem);
+  padding-top:56px; /* headroom for the bubbles, which may lap the intro. fine — they're transient. */
+}
+.crow{
+  position:relative;flex:0 1 auto;display:flex;flex-direction:column;align-items:center;
+  background:none;padding:0;
+}
+/* Two layers, because one element cannot hold two transforms. The image keeps
+   its slow idle float; the wrapper does the hop. Put the hop on the image itself
+   and the float animation simply wins — a running animation beats a declared
+   transform, so the hover would silently do nothing. */
+.crow-art{
+  width:auto;height:var(--h);max-height:34vh;
+  transform-origin:50% 100%;
+  animation:float var(--dur,6s) ease-in-out var(--del,0s) infinite alternate;
+}
+@keyframes float{
+  from{transform:translateY(0) rotate(var(--r1,-1.2deg))}
+  to{transform:translateY(-10px) rotate(var(--r2,1.2deg))}
+}
+.crow-hop{display:block;transform-origin:50% 100%}
+.crow:hover .crow-hop,.crow:focus-visible .crow-hop,
+.norm-act:hover .norm-hop,.norm-act:focus-visible .norm-hop{
+  animation:hop .62s cubic-bezier(.28,.9,.32,1);
+}
+/* crouch, spring, land, settle — a bird's hop, not a lift */
+@keyframes hop{
+  0%  {transform:translateY(0)     scale(1,1)}
+  16% {transform:translateY(1px)   scale(1.06,.92)}   /* gather */
+  42% {transform:translateY(-26px) scale(.96,1.07)}   /* up */
+  66% {transform:translateY(0)     scale(1.05,.94)}   /* land, squash */
+  82% {transform:translateY(-6px)  scale(.99,1.02)}   /* small rebound */
+  100%{transform:translateY(0)     scale(1,1)}
+}
+.crow-say{
+  position:absolute;bottom:calc(100% - 6px);left:50%;
+  width:max-content;max-width:200px;
+  transform:translate(-50%,8px) scale(.92);
+  transform-origin:50% 100%;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease,transform .22s cubic-bezier(.3,1.5,.5,1);
+  z-index:3;
+}
+.crow:hover .crow-say,.crow:focus-visible .crow-say{opacity:1;transform:translate(-50%,0) scale(1)}
+.crow-say::after{left:50%;margin-left:-7px}
+.nametag{
+  margin-top:1rem;
+  font:700 .74rem/1 var(--sans);letter-spacing:.06em;
+  background:var(--paper);border:2px solid var(--ink);border-radius:6px;
+  padding:5px 11px;color:var(--ink);box-shadow:0 2px 0 var(--ink);
+}
+.crow-role{
+  margin-top:.5rem;font:700 .58rem/1.5 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--terra-ink);text-align:center;
+}
+
+/* ============================================================
+   RESIDENTS — where the brochure starts to lose its nerve.
+   ============================================================ */
+#tenants{background:linear-gradient(180deg,var(--paper),var(--ground))}
+#tenants .eyebrow{color:var(--soft)}
+#tenants .eyebrow::after{border-color:#B0B0A9}
+.ten-grid{
+  display:grid;grid-template-columns:1fr auto;gap:clamp(2rem,5vw,4rem);align-items:end;
+}
+.ten-pair{display:flex;align-items:flex-end;gap:clamp(0px,1vw,14px);justify-self:end}
+.ten-pair img{
+  height:clamp(230px,32vw,380px);width:auto;
+  animation:float 7s ease-in-out infinite alternate;transform-origin:50% 100%;
+}
+.ten-pair img:last-child{animation-duration:8.4s;animation-delay:-3s}
+.ten-copy{max-width:46ch}
+.ten-copy p{color:var(--soft);margin-bottom:1rem}
+.ten-copy p:last-of-type{color:#7A7A73}
+
+/* ============================================================
+   WAITLIST / NORM / FOOTER
+   ============================================================ */
+#waitlist{background:var(--ground)}
+.wl-box{
+  max-width:720px;margin-inline:auto;text-align:center;
+  background:var(--panel);border:2px solid var(--ink);border-radius:8px;
+  padding:clamp(28px,5vw,56px);box-shadow:0 6px 0 var(--ink);
+}
+.wl-box .eyebrow{display:flex;flex-direction:column;align-items:center}
+.wl-box .eyebrow::after{margin-inline:auto}
+.wl-sub{font:italic 400 1.05rem/1.5 var(--serif);color:var(--terra-ink);margin-bottom:1.8rem}
+.wl-form{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
+.wl-form input{
+  flex:1 1 260px;max-width:340px;font:500 .95rem/1 var(--sans);color:var(--char);
+  padding:1rem 1.1rem;border:2px solid var(--ink);border-radius:8px;background:var(--paper);
+}
+.wl-form input::placeholder{color:#9B9B94}
+.wl-form button{
+  font:700 .8rem/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:8px;
+  padding:1rem 1.7rem;transition:background .2s,transform .1s,box-shadow .1s;
+}
+.wl-form button:hover{background:var(--terra-ink);border-color:var(--terra-ink)}
+.wl-fine{margin-top:1.2rem;font-size:.78rem;color:var(--soft)}
+.wl-done{max-width:46ch;margin-inline:auto}
+.wl-done h3{font:600 1.5rem/1.3 var(--serif);margin-bottom:.6rem}
+.wl-done p{font-size:.95rem;color:var(--char)}
+
+.norm-strip{padding-block:clamp(3.5rem,7vw,5.5rem);border-top:2px solid var(--ink);background:var(--paper)}
+.norm-flex{display:flex;gap:clamp(1.8rem,4vw,3.5rem);align-items:center;justify-content:center;flex-wrap:wrap}
+.norm-flex img{width:clamp(88px,11vw,124px);height:auto;animation:bob 6s ease-in-out infinite alternate;transform-origin:50% 100%}
+.norm-q{max-width:44ch}
+.norm-q blockquote p{font:italic 400 clamp(1.15rem,2.4vw,1.5rem)/1.45 var(--serif);color:var(--ink)}
+.norm-q figcaption{margin-top:.8rem;font-size:.82rem;color:var(--soft)}
+
+footer{background:var(--panel);border-top:2px solid var(--ink);padding-block:2.6rem 3.2rem}
+.legal{max-width:78ch;font-size:.72rem;line-height:1.8;color:var(--soft)}
+.legal strong{color:var(--char);font-weight:700}
+.credit{margin-top:1.4rem;font:700 .68rem/1.8 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--char)}
+.credit span{color:var(--terra-ink)}
+
+/* ============================================================
+   THE CLICKER LAYER
+   ============================================================ */
+[data-coin]{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.squish{animation:squish .45s ease}
+@keyframes squish{
+  0%{transform:scale(1)}35%{transform:scale(.955)}70%{transform:scale(1.04)}100%{transform:scale(1)}
+}
+.coin{
+  position:fixed;z-index:80;pointer-events:none;
+  font:700 1rem/1 var(--sans);color:var(--money);
+  text-shadow:0 1px 0 #fff,0 0 6px #fff;will-change:transform,opacity;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:1099px){
+  .res-grid{grid-template-columns:1fr 1fr}
+  .crew{flex-wrap:wrap;gap:clamp(10px,3vw,30px)}
+  .crow-art{max-height:none}
+}
+@media (max-width:980px){
+  .demo-grid{grid-template-columns:1fr;gap:3.5rem}
+  .stagebox{margin-top:1rem}
+  .ten-grid{grid-template-columns:1fr;gap:2.5rem}
+  .ten-pair{justify-self:center}
+}
+@media (max-width:860px){
+  .row{grid-template-columns:1fr;gap:2px 0;padding-block:.9rem}
+  .nav-links{display:none}
+  /* no room to float beside the text — dock it bottom-left, like a game HUD */
+  .wallet-dock{top:auto;bottom:16px;left:12px}
+  .wallet{padding:7px 11px 7px 9px}
+  .wallet svg{width:25px;height:21px}
+  .wallet-total{font-size:.95rem}
+}
+@media (max-width:700px){
+  .amen{grid-template-columns:1fr}
+  .crew{padding-top:80px}
+}
+@media (max-width:560px){
+  .res-grid{grid-template-columns:1fr}
+  .plate{padding-top:16px}
+  .wire-chip{font-size:.55rem;letter-spacing:.08em;padding-inline:8px}
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+  .rev{opacity:1;transform:none}
+  .hero-art{transform:none !important}
+  .nav-bar,.wire{transition:none}
+  .wallet-float{animation:none}
+  .crow:hover .crow-hop,.norm-act:hover .norm-hop,.bubble--hero.pop{animation:none}
+}
+</style>
+<noscript><style>.rev{opacity:1;transform:none}.nav-bar{transform:none}</style></noscript>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="flr">
+      <path d="M2 16 L16 2 L74 2 L60 16 Z"/>
+      <path d="M60 16 L74 2 L74 28 L60 42 Z"/>
+      <path d="M2 16 L60 16 L60 42 L2 42 Z"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- ============ NAV (arrives late, on its own schedule) ============ -->
+<header class="nav-bar" id="navBar">
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="#top">RENT RAISER</a>
+    <div class="nav-links">
+      <a href="#residences">Residences</a>
+      <a href="#managers">Personnel</a>
+      <a href="#waitlist">Notify me</a>
+    </div>
+  </nav>
+</header>
+
+<!-- ============ LINE CITY RADIO ============ -->
+<div class="radio-dock" id="radioDock">
+  <div class="radio" id="radio">
+    <span class="radio-chip" aria-hidden="true">LINE CITY RADIO</span>
+    <div class="radio-body">
+      <button class="radio-btn" id="radioPlay" type="button" aria-label="Play Line City Radio">▶</button>
+      <span class="radio-eq" id="radioEq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="radio-now">
+        <span class="radio-title" id="radioTitle">Solution Maximus</span>
+        <span class="radio-artist" id="radioArtist">Derrick Feather</span>
+      </span>
+      <button class="radio-btn" id="radioNext" type="button" aria-label="Next track">&#9199;</button>
+    </div>
+    <p class="radio-note" id="radioNote">Music to raise the rent to.</p>
+    <p class="sr" role="status" id="radioStatus"></p>
+  </div>
+</div>
+
+<!-- ============ THE WALLET (follows you down the page) ============ -->
+<div class="wallet-dock" id="walletDock">
+  <div class="wallet-float">
+    <button class="wallet" id="wallet" type="button" data-coin="1" aria-label="Your holdings. Also a button, because everything here is.">
+      <!-- a wallet drawn in the same ink as the city -->
+      <svg viewBox="0 0 40 32" fill="none" stroke="currentColor" stroke-width="2.4"
+           stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 8.5C3 6 5 4 7.5 4H29a2 2 0 0 1 2 2v3"/>
+        <rect x="3" y="8.5" width="34" height="20.5" rx="3"/>
+        <path d="M37 15.5h-8a3.75 3.75 0 0 0 0 7.5h8"/>
+        <circle cx="29.5" cy="19.25" r="1.6" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="wallet-nums">
+        <span class="wallet-total" id="walletTotal">$0</span>
+        <span class="wallet-rate" id="walletRate">$50/sec</span>
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<div id="top"></div>
+<header class="hero">
+  <div class="hero-media" aria-hidden="true">
+    <div class="hero-art" id="heroArt">
+      <div class="sway-x"><div class="hero-img"></div></div>
+    </div>
+    <div class="hero-wash"></div>
+  </div>
+
+  <div class="plaque wrap">
+    Line City Properties
+    <small>Purveyors of fine wireframe residences · Est. Chapter One</small>
+  </div>
+
+  <div class="hero-core">
+    <p class="presents">presents</p>
+    <h1>RENT RAISER</h1>
+    <div class="hero-rule" aria-hidden="true"></div>
+    <p class="hero-tag">&ldquo;Congratulations: You Now Do Nothing And Earn Everything&rdquo;</p>
+    <div class="hero-cta">
+      <a class="btn" href="#waitlist">Join the waiting list</a>
+      <a class="ghost" href="#residences">View the residences</a>
+    </div>
+    <p class="hero-note">An idle landlord-tycoon game for your phone. It will think less of you for playing it well.</p>
+  </div>
+</header>
+
+<!-- ============ LINE CITY WIRE ============
+     Deliberately in the document flow, sitting on the seam between the hero and
+     the page. You meet it on the way down; it then pins itself to the top. -->
+<div class="wire" id="wire" role="region" aria-label="Line City Wire news ticker">
+  <span class="wire-chip" aria-hidden="true">LINE CITY WIRE</span>
+  <div class="wire-win">
+    <div class="wire-track">
+      <span class="wire-set" id="wireSet"></span>
+      <span class="wire-set" id="wireSet2" aria-hidden="true"></span>
+    </div>
+  </div>
+  <button class="wire-pause" id="wirePause" type="button" aria-pressed="false" aria-label="Pause news ticker">❚❚</button>
+</div>
+
+<main id="main">
+
+  <!-- ============ THE DEMONSTRATION ============ -->
+  <section id="demo">
+    <div class="wrap demo-grid">
+      <div>
+        <p class="eyebrow rev">The proposition</p>
+        <h2 class="rev">It collects itself.</h2>
+        <p class="intro rev">Rent fills a bar. You tap the bar. Money appears. You will be told this is a game, and it is, in the sense that you will do it for six hours and call it relaxing.</p>
+        <p class="rev" style="color:var(--soft);max-width:52ch;margin-bottom:1.6rem">Every figure on this page is climbing while you read it. That is not a bug in the website. That is the product.</p>
+        <p class="rev"><span class="annot">try clicking literally anything. we mean it. &mdash; m.</span></p>
+      </div>
+
+      <div class="stagebox">
+        <div class="phone" data-coin="4">
+          <img src="assets/img/road-cool.webp" width="688" height="1024" loading="lazy"
+               alt="Line City in the game: a dark road running to the horizon across a tiled plain, wireframe cube buildings alongside it, a pencil skyline and a pale sun under a teal sky.">
+        </div>
+        <div class="chip" aria-hidden="true">+$50 collected!</div>
+        <button class="norm-act" id="normAct" type="button" data-coin="2"
+                aria-label="Norm, the tutorial mentor, a scraggly hand-drawn crow in a shirt and loose tie. Hover him and he has something to say about it.">
+          <span class="norm-hop">
+            <img class="norm-hero" id="normSprite" src="assets/img/norm-happy.webp" width="353" height="654" alt="">
+          </span>
+        </button>
+        <p class="bubble bubble--hero" id="normQuip" aria-live="polite">Hey there! Welcome to the property business.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <div class="wrap">
+      <p class="eyebrow rev">Features</p>
+      <h2 class="rev">Everything Goes Up</h2>
+      <p class="intro rev">An idle empire in three taps. The line goes up while you play, while you don&rsquo;t play, and — thanks to our team of professionals — while you specifically promise yourself you&rsquo;ll stop playing.</p>
+
+      <div class="grid">
+        <div class="card rev" data-coin="2" style="--d:0s">
+          <h3>Tap. Collect. Repeat.</h3>
+          <p>Rent fills a bar. You tap the bar. Money appears. Ten buildings, from a $50 Rundown Duplex to the $1,000,000,000 Titan Spire.</p>
+          <span class="tag">Idle loop</span>
+        </div>
+        <div class="card rev" data-coin="2" style="--d:.06s">
+          <h3>Hire managers. They handle everything.</h3>
+          <p>Auto-collect even when you&rsquo;re away. Offline earnings at 50%. You literally cannot stop earning. We checked.</p>
+          <span class="tag">Passive income</span>
+        </div>
+        <div class="card rev" data-coin="2" style="--d:.12s">
+          <h3>Three upgrade tracks.</h3>
+          <p>Amenities, Structure, Marketing — ten levels each. Global upgrades stack all profits from &times;3 to &times;77. &ldquo;Board game sold separately.&rdquo;</p>
+          <span class="tag">Number engine</span>
+        </div>
+        <div class="card rev" data-coin="2" style="--d:.18s">
+          <h3>Numbers past pronunciation.</h3>
+          <p>K, M, B, T, Qa, Qi, Sx, Sp, Oc, No, Dc&hellip; then the game politely switches to $1.23e36 and keeps going.</p>
+          <span class="tag">$1.23e36</span>
+        </div>
+      </div>
+
+      <p style="margin-top:2.4rem"><span class="annot rev">great energy so far, team. keep it exactly like this. &mdash; m.</span></p>
+    </div>
+  </section>
+
+  <!-- ============ RESIDENCES ============ -->
+  <section id="residences">
+    <div class="wrap">
+      <p class="eyebrow rev">Portfolio</p>
+      <h2 class="rev">The Residences</h2>
+      <p class="intro rev">Ten addresses along one hand-inked highway, presented in ascending order of price. Each has been rendered by our architects in pencil, at considerable expense, and is available to anyone. Anyone with money.</p>
+      <div class="res-grid" id="resGrid"></div>
+      <p class="res-note rev">You may notice the palette maturing as the prices ascend. Our colorists call this patina. It is not dirt.</p>
+    </div>
+  </section>
+
+  <!-- ============ PARTICULARS ============ -->
+  <section id="particulars">
+    <div class="wrap">
+      <p class="eyebrow rev">Specifications</p>
+      <h2 class="rev">The Particulars</h2>
+      <p class="intro rev">Every figure below is accurate. We checked, reluctantly.</p>
+      <dl class="sheet rev">
+        <div class="row"><dt>The portfolio</dt><dd>Ten residences, ascending from $50 to $1,000,000,000.</dd></div>
+        <div class="row"><dt>Improvements</dt><dd>Three upgrade tracks — Amenities, Structure, Marketing — ten levels each.</dd></div>
+        <div class="row"><dt>Staff</dt><dd>Managers collect rent <em>even when you&rsquo;re away</em>.</dd></div>
+        <div class="row"><dt>Overnight service</dt><dd>Offline earnings accrue at 50%. The buildings do not sleep; you may.</dd></div>
+        <div class="row"><dt>Growth</dt><dd>Global upgrades stack all profits from &times;3 to &times;77. <em>&ldquo;On a finite planet. Somehow.&rdquo;</em></dd></div>
+        <div class="row"><dt>Construction</dt><dd>Hand-inked wireframe. Two-point perspective, 2px lines, no 3D engine.</dd></div>
+        <div class="row"><dt>Climate</dt><dd>75-second days. Automatic rain with lightning; pedestrians shelter inside your buildings.</dd></div>
+        <div class="row"><dt>Music</dt><dd>Sixteen tracks in day and night editions, from <em>Humble beginnings</em> to <em>Peak capitalism (ominous)</em>.</dd></div>
+        <div class="row"><dt>Arithmetic</dt><dd>K, M, B, T, Qa, Qi, Sx, Sp, Oc, No, Dc&hellip; then scientific notation.</dd></div>
+        <div class="row"><dt>Recreation</dt><dd>Press R. We won&rsquo;t explain.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ============ AMENITIES ============ -->
+  <section id="amenities">
+    <div class="wrap">
+      <p class="eyebrow rev">Appointments</p>
+      <h2 class="rev">Amenities &amp; Appointments</h2>
+      <p class="intro rev">Every residence is appointed to the very highest standard we were prepared to pay for.</p>
+      <ul class="amen">
+        <li class="rev" data-coin="1"><strong>&lsquo;Award-winning.&rsquo;</strong> We made the award.</li>
+        <li class="rev" data-coin="1"><strong>Wellness room.</strong> Crying closet with branding.</li>
+        <li class="rev" data-coin="1"><strong>&lsquo;Open concept.&rsquo;</strong> We removed a closet.</li>
+        <li class="rev" data-coin="1"><strong>Gray paint everywhere.</strong> It&rsquo;s called &lsquo;greige&rsquo; now.</li>
+        <li class="rev" data-coin="1"><strong>Concierge service.</strong> Also the maintenance guy.</li>
+        <li class="rev" data-coin="1"><strong>&lsquo;Resort-style living.&rsquo;</strong> Resort not included.</li>
+        <li class="rev" data-coin="1"><strong>Fitness center.</strong> One treadmill. Broken.</li>
+        <li class="rev" data-coin="1"><strong>&lsquo;Gated community.&rsquo;</strong> Gate works sometimes.</li>
+        <li class="rev" data-coin="1"><strong>&lsquo;Penthouse collection.&rsquo;</strong> Top 4 floors. All penthouses.</li>
+        <li class="rev" data-coin="1"><strong>New toilet seat.</strong> The luxury of sitting.</li>
+        <li class="rev" data-coin="1"><strong>&lsquo;Boutique living.&rsquo;</strong> It&rsquo;s 12 units.</li>
+        <li class="rev" data-coin="1"><strong>Virtual tour</strong> hides the smell.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ PERSONNEL ============ -->
+  <section id="managers">
+    <div class="wrap">
+      <p class="eyebrow rev">Personnel</p>
+      <h2 class="rev">Meet our Property Managers</h2>
+      <p class="intro rev">Rent collects itself — even when you&rsquo;re away. These professionals see to that. They have been with Line City Properties for some time and have stopped asking questions, which we value.</p>
+
+      <div class="crew rev" id="crew"></div>
+
+      <p class="res-note rev">Hover any member of staff. They will tell you something. We have asked them not to.</p>
+    </div>
+  </section>
+
+  <!-- ============ RESIDENTS — the nerve starts going ============ -->
+  <section id="tenants">
+    <div class="wrap ten-grid">
+      <div class="ten-copy">
+        <p class="eyebrow rev">Residents</p>
+        <h2 class="rev">And the people who live there.</h2>
+        <p class="rev">Every residence comes with residents. This is, we are told, unavoidable. They have been informed of the new rate and have taken the news in a spirit of&hellip;</p>
+        <p class="rev">Look — they&rsquo;re fine. They have coffee. They have somewhere to be. One of them has a tote bag that we have been asked not to photograph.</p>
+        <p class="rev">They are not, technically, a feature. We just thought you should see them before you buy the building.</p>
+        <p class="rev" style="margin-top:1.6rem"><span class="annot annot--r">do we have to include this section. asking sincerely. &mdash; m.</span></p>
+      </div>
+
+      <div class="ten-pair rev">
+        <img src="assets/img/char/chris.webp" width="500" height="999" loading="lazy"
+             alt="Chris, a young crow in a hoodie and cut-off shorts, holding a coffee cup that reads 'another day another rent hike'.">
+        <img src="assets/img/char/grace.webp" width="440" height="970" loading="lazy"
+             alt="Grace, a young crow in an oversized sweater with a tote bag reading 'not my problem', holding a coffee cup that reads 'dead inside'.">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WAITLIST ============ -->
+  <section id="waitlist">
+    <div class="wrap">
+      <div class="wl-box rev">
+        <p class="eyebrow">Enquiries</p>
+        <h2>Join the waiting list.</h2>
+        <p class="wl-sub">Artificial scarcity, included.</p>
+        <form class="wl-form" id="notify" novalidate>
+          <label class="sr" for="wl-email">Email address</label>
+          <input id="wl-email" name="email" type="email" autocomplete="email" required placeholder="you@somewhere.fine">
+          <button type="submit">Notify me</button>
+        </form>
+        <p class="wl-fine" id="wl-fine">Your email will be used to notify you, and to feel exclusive.</p>
+        <div class="wl-done" id="wl-done" hidden>
+          <h3>Placement secured.</h3>
+          <p>You&rsquo;re on the waiting list. The wait itself is complimentary. We&rsquo;ll write the moment RENT RAISER has a door to open.</p>
+        </div>
+        <p class="sr" role="status" id="wl-status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NORM, AT THE END OF IT ============ -->
+  <div class="norm-strip">
+    <div class="wrap norm-flex">
+      <img id="normEnd" src="assets/img/norm-disgusted.webp" width="338" height="612" loading="lazy"
+           alt="Norm, the crow, at the foot of the page, looking thoroughly disgusted with this entire website.">
+      <figure class="norm-q rev">
+        <blockquote><p>&ldquo;Congratulations, I guess. You won. Whatever this is.&rdquo;</p></blockquote>
+        <figcaption>— Norm, former tutorial mentor. Does not endorse this development.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="legal"><strong>Notices.</strong> Line City is not a real place. The rent, however, is real. All renderings are artist&rsquo;s impressions; the artist used a pencil. &lsquo;Award-winning&rsquo; refers to an award we designed, printed, and presented to ourselves in a brief but moving ceremony. The waiting list confers no rights, priorities, or dignities. RENT RAISER is a registered trademark in no jurisdiction. Norm appears without his consent and has asked us to state that he wants no part of this. Greg, Linda, Susan and Bud appear contractually. The residents appear because they live there. Offline earnings accrue at 50% whether or not you deserve them. Money shown on this page is not real and cannot be withdrawn, a fact our lawyers insisted we print and our marketing department found genuinely upsetting. E&amp;OE.</p>
+    <p class="credit">Game &amp; site — Huskie / Alenzie Solutions <span>·</span> © MMXXVI Line City Properties, a wholly fictional subsidiary</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var doc = document;
+var $ = function(id){ return doc.getElementById(id); };
+var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============================================================
+   DATA
+   ============================================================ */
+var RESIDENCES = [
+  ['#8991DC', 1,  'Rundown Duplex',   '$50',             'A modest duplex in need of some love. Everyone starts somewhere, and this is your somewhere.'],
+  ['#DBC470', 2,  'Small Apartment',  '$500',            'A 6-unit apartment building with character. By ‘character’ we mean ‘problems.’'],
+  ['#9C9376', 3,  'Medium Complex',   '$5,000',          'A 24-unit complex that says ‘I’m a real landlord now.’ Your tenants may disagree.'],
+  ['#70728A', 4,  'Office Building',  '$50,000',         'Commercial real estate for serious business. Serious exploitation, that is.'],
+  ['#615E54', 5,  'Luxury Tower',     '$500,000',        'High-rise luxury living for the discerning tenant. You monster. You absolute monster.'],
+  ['#DB616E', 6,  'Corporate Plaza',  '$2,500,000',      'Where dreams go to die in cubicles. The rent is high but the morale is low.'],
+  ['#70DB88', 7,  'Tech Campus',      '$10,000,000',     'Innovation and disruption! Also disrupting people’s ability to afford rent.'],
+  ['#769C7F', 8,  'Financial Center', '$50,000,000',     'Money making money. It’s not a pyramid scheme if you own the pyramid.'],
+  ['#8A7072', 9,  'Mega Tower',       '$250,000,000',    'The pinnacle of excess.'],
+  ['#546157', 10, 'Titan Spire',      '$1,000,000,000',  'A monument to greed visible from space.']
+];
+
+/* height is the artist's own relative scale, lifted from the crew artwork —
+   Greg towers, Bud does not. Do not normalise these. */
+var CREW = [
+  {f:'greg',  n:'Greg',  h:300, role:'Leases &amp; Inspections',  say:'I don’t make the rules. I do enforce them.',        dur:6.4, del:-0.4},
+  {f:'linda', n:'Linda', h:261, role:'Building Manager',          say:'I know everything about everyone in this building.',     dur:7.1, del:-2.2},
+  {f:'susan', n:'Susan', h:280, role:'Maintenance &amp; Complaints', say:'I have forty-one open complaints. I’m getting to them.', dur:6.8, del:-1.1},
+  {f:'norm',  n:'Norm',  h:253, role:'Tutorial Mentor',           say:'Hey there! Welcome to the property business.',           dur:5.9, del:-3.4},
+  {f:'bud',   n:'Bud',   h:206, role:'Superintendent',            say:'Everything’s fine. I have not read any of these.',   dur:7.6, del:-1.8}
+];
+
+/* ============================================================
+   NORM — ported straight out of the game, not reinvented.
+   Sprite map + frame cycles: scripts/ui/NormPortrait.gd (MOOD_TEXTURES, MOOD_CYCLES)
+   The wave:                  NormPortrait.play_wave_animation() — idle↔happy @ 2.5fps, 2s
+   The lines:                 scripts/NormDialogue.gd (DEJECTED_QUIPS)
+   ============================================================ */
+var NORM_SPRITES = {
+  happy: 'assets/img/norm-happy.webp',
+  idle:  'assets/img/norm-idle.webp',
+  sus:   'assets/img/norm-sus.webp',
+  sad:   'assets/img/norm-disgusted.webp',
+  full:  'assets/img/norm-full.webp'
+};
+
+/* [frame, seconds] — the durations are the game's, to the decimal */
+var NORM_CYCLES = {
+  happy: [['happy',1.1], ['idle',0.5], ['full',0.2]],
+  idle:  [['idle',4.0],  ['full',0.8]],
+  sad:   [['sad',3.0],   ['idle',0.2], ['sus',1.0]],
+  sus:   [['idle',0.4],  ['sus',2.2],  ['sad',0.3], ['sus',2.0]],
+  eager: [['happy',0.3], ['idle',0.2], ['happy',0.25], ['full',0.15]]
+};
+
+/* what Norm says when you bother him and he has nothing prepared */
+var NORM_QUIPS = [
+  'Hey there! Welcome to the property business.',
+  'I don’t have anything for you right now.',
+  'Just... enjoying the view.',
+  'Did you need something? Because I don’t.',
+  'I’m on break.',
+  'Nothing to report. As usual.',
+  '*sigh* What.',
+  'I’m fine. Everything’s fine.',
+  'Just standing here. Like I do.'
+];
+
+/* Line City Radio. Corporate music, played straight, which is the joke. */
+var RADIO = [
+  {file:'solution-maximus', title:'Solution Maximus',  artist:'Derrick Feather'},
+  {file:'raise-em-high',    title:'Raise ’Em High', artist:'Roger Raven'},
+  {file:'space-rent',       title:'Space Rent',        artist:'Daft Bird'}
+];
+
+var WIRE = [
+  ['Housing Market Experts Recommend Being Born Earlier','4.2%'],
+  ['Median Rent Now Exceeds Median Income In Milestone Achievement','11.8%'],
+  ['Community Garden Rezoned For ‘Community-Adjacent Luxury Housing’','6.1%'],
+  ['Real Estate App Adds ‘Cry’ Button To Search Results','2.4%'],
+  ['Bank Offers 47-Year Mortgage For ‘Ambitious First-Time Buyers’','8.7%'],
+  ['Artist Lofts Now Too Expensive For Artists, Renamed ‘Creative Professional Spaces’','9.3%'],
+  ['Ground-Floor Retail Space Sits Empty, As Designed','1.1%'],
+  ['Landlord Achieves Dream Of Passive Income, Tenants Achieve Passive Despair','14.6%'],
+  ['Tenants Report Leaks, Management Reports ‘Character Features’','7.0%'],
+  ['Local Millionaire Attributes Success To ‘Hard Work’ And ‘Owning Things’','12.2%'],
+  ['Historic Building Demolished To Make Way For Building With ‘Historic Character’','5.5%'],
+  ['Juice Bar Describes $14 Drink As ‘Accessible Wellness’','2.9%'],
+  ['System Perfected: Money Arrives, Questions Don’t','77%']
+];
+
+/* ============================================================
+   BUILD THE REPEATING BITS
+   ============================================================ */
+(function buildResidences(){
+  var grid = $('resGrid'); if(!grid) return;
+  var html = '';
+  RESIDENCES.forEach(function(r, i){
+    var hex = r[0], floors = r[1], name = r[2], price = r[3], desc = r[4];
+    var h = 18 + floors * 26;               /* viewBox height grows a floor at a time */
+    var uses = '';
+    for (var f = 0; f < floors; f++) uses += '<use href="#flr" y="' + (f * 26) + '"/>';
+    html +=
+      '<article class="res rev" data-coin="3" style="--hex:' + hex + ';--d:' + ((i % 5) * 0.06) + 's">' +
+        '<div class="plate" aria-hidden="true">' +
+          '<svg class="cube" style="--cd:-' + (0.7 * (i % 3 + 1)) + 's" width="54" height="' + Math.round(h * 54 / 76) + '" viewBox="0 0 76 ' + h + '" focusable="false">' + uses + '</svg>' +
+        '</div>' +
+        '<div class="res-body">' +
+          '<p class="res-no">Residence ' + (floors < 10 ? '0' : '') + floors + '</p>' +
+          '<h3 class="res-name">' + name + '</h3>' +
+          '<p class="res-price">From ' + price + '</p>' +
+          '<p class="res-desc">' + desc + '</p>' +
+        '</div>' +
+      '</article>';
+  });
+  grid.innerHTML = html;
+})();
+
+(function buildCrew(){
+  var crew = $('crew'); if(!crew) return;
+  var html = '';
+  CREW.forEach(function(c, i){
+    var r1 = (i % 2 ? 1 : -1) * (0.9 + (i * 0.2));
+    html +=
+      '<button class="crow" type="button" data-coin="3" style="--h:' + c.h + 'px;--dur:' + c.dur + 's;--del:' + c.del + 's;--r1:' + (-r1) + 'deg;--r2:' + r1 + 'deg;--rx:' + (r1 * 1.8) + 'deg" aria-label="' + c.n + ', ' + c.role.replace(/&amp;/g,'and') + '. ' + c.say + '">' +
+        '<span class="bubble crow-say" aria-hidden="true">' + c.say + '</span>' +
+        '<span class="crow-hop"><img class="crow-art" src="assets/img/char/' + c.f + '.webp" loading="lazy" alt=""></span>' +
+        '<span class="nametag" aria-hidden="true">' + c.n + '</span>' +
+        '<span class="crow-role" aria-hidden="true">' + c.role + '</span>' +
+      '</button>';
+  });
+  crew.innerHTML = html;
+})();
+
+/* A tiny port of NormPortrait's _process_mood_cycle: walk the frames of a mood,
+   hold each for its own duration, loop. A "special" animation (the wave) pre-empts
+   the cycle and hands control back when it's done — same contract as the game. */
+function NormPlayer(img, mood){
+  var t = null, frames = [], i = 0, base = mood;
+
+  function show(key){ if (NORM_SPRITES[key]) img.src = NORM_SPRITES[key]; }
+
+  function step(){
+    if (!frames.length) return;
+    var f = frames[i % frames.length];
+    show(f[0]);
+    t = setTimeout(function(){ i++; step(); }, f[1] * 1000);
+  }
+
+  function play(cycle){
+    clearTimeout(t);
+    frames = cycle; i = 0;
+    step();
+  }
+
+  this.mood = function(m){
+    if (!NORM_CYCLES[m]) { clearTimeout(t); show(m); return; }
+    base = m;
+    play(NORM_CYCLES[m]);
+  };
+
+  /* play_wave_animation(): idle↔happy at 2.5fps for 2s, then back to the mood */
+  this.wave = function(){
+    clearTimeout(t);
+    var seq = [['idle',0.4], ['happy',0.4], ['idle',0.4], ['happy',0.4], ['idle',0.4]];
+    var k = 0;
+    (function hop(){
+      if (k >= seq.length){ play(NORM_CYCLES[base]); return; }
+      show(seq[k][0]);
+      t = setTimeout(function(){ k++; hop(); }, seq[k][1] * 1000);
+    })();
+  };
+
+  this.freeze = function(key){ clearTimeout(t); show(key); };
+  this.mood(mood);
+}
+
+(function normLife(){
+  var sprite = $('normSprite'), quip = $('normQuip'), act = $('normAct'), end = $('normEnd');
+
+  /* preload every frame — otherwise the first swap of each sprite flickers */
+  for (var k in NORM_SPRITES){ (new Image()).src = NORM_SPRITES[k]; }
+
+  if (sprite){
+    var norm = new NormPlayer(sprite, 'happy');
+
+    /* Under reduced motion, hold one frame. A sprite cycle IS motion. */
+    if (reduce) norm.freeze('happy');
+
+    var qi = 0;
+    var greet = function(){
+      qi = (qi + 1) % NORM_QUIPS.length;
+      if (quip){
+        quip.textContent = NORM_QUIPS[qi];
+        if (!reduce){
+          quip.classList.remove('pop');
+          void quip.offsetWidth;          /* restart the pop */
+          quip.classList.add('pop');
+        }
+      }
+      if (!reduce) norm.wave();
+    };
+    act.addEventListener('mouseenter', greet);
+    act.addEventListener('focus', greet);
+    if (quip){
+      quip.addEventListener('animationend', function(){ quip.classList.remove('pop'); });
+    }
+  }
+
+  /* The Norm at the foot of the page has stopped waving. He gets the game's own
+     'sad' cycle — disgusted, a glance away, suspicion, back to disgusted — and he
+     does not react to you at all. */
+  if (end && !reduce) new NormPlayer(end, 'sad');
+})();
+
+(function buildWire(){
+  var html = WIRE.map(function(w){
+    return '<span class="wi">' + w[0] + '<b>▲ ' + w[1] + '</b></span>';
+  }).join('');
+  var a = $('wireSet'), b = $('wireSet2');
+  if (a) a.innerHTML = html;
+  if (b) b.innerHTML = html;
+})();
+
+/* ============================================================
+   THE MONEY — a real little clicker, running the whole page
+   ============================================================ */
+var UNITS = ['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc'];
+function fmt(n){
+  if (n < 1000) return '$' + Math.floor(n);
+  var tier = Math.floor(Math.log10(n) / 3);
+  if (tier >= UNITS.length) return '$' + n.toExponential(2).replace('e+','e');
+  var scaled = n / Math.pow(1000, tier);
+  return '$' + (scaled < 10 ? scaled.toFixed(2) : scaled < 100 ? scaled.toFixed(1) : Math.floor(scaled)) + UNITS[tier];
+}
+
+var money = 0;
+var rate  = 50;              /* $/sec — climbs every time you touch something */
+var walletEl      = $('wallet');
+var walletTotalEl = $('walletTotal');
+var walletRateEl  = $('walletRate');
+
+function paint(){
+  if (walletTotalEl) walletTotalEl.textContent = fmt(money);
+  if (walletRateEl)  walletRateEl.textContent  = fmt(rate) + '/sec';
+}
+
+/* idle accrual — the line goes up whether or not you do anything.
+   That is, after all, the entire pitch. */
+var last = null;
+function loop(t){
+  if (last === null) last = t;
+  /* clamped: a backgrounded tab freezes rAF, and the catch-up frame would
+     otherwise dump the whole gap in at once. The away time is paid out below,
+     at the advertised rate, by the one mechanism honest enough to use a clock. */
+  var dt = Math.min((t - last) / 1000, 0.25);
+  last = t;
+  money += rate * dt;
+  paint();
+  swayWallet();          /* same frame — no second rAF loop */
+  radioTravel();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* Offline earnings, accruing at 50%, exactly as promised in the fine print.
+   rAF is suspended in a hidden tab, so without this the one claim the whole
+   page is built on would quietly be false. */
+var awaySince = 0;
+doc.addEventListener('visibilitychange', function(){
+  if (doc.hidden){
+    awaySince = Date.now();
+    return;
+  }
+  last = null;                                  /* don't let rAF bill the gap twice */
+  if (!awaySince) return;
+  var away = (Date.now() - awaySince) / 1000;
+  awaySince = 0;
+  if (away < 2) return;
+  money += rate * away * 0.5;
+  paint();
+  bumpWallet();
+});
+
+function bumpWallet(){
+  if (!walletEl || reduce) return;
+  walletEl.classList.remove('bump');
+  void walletEl.offsetWidth;
+  walletEl.classList.add('bump');
+}
+
+/* a $ that arcs from where you clicked up to the wallet */
+function throwCoin(x, y, delay){
+  if (reduce || !walletEl) return;
+  var target = walletEl.getBoundingClientRect();
+  var tx = target.left + target.width / 2;
+  var ty = target.top  + target.height / 2;
+
+  var coin = doc.createElement('span');
+  coin.className = 'coin';
+  coin.textContent = '$';
+  coin.style.left = x + 'px';
+  coin.style.top  = y + 'px';
+  doc.body.appendChild(coin);
+
+  var dx = tx - x, dy = ty - y;
+  var lift = Math.min(160, Math.abs(dx) * 0.4 + 90);   /* how high it arcs */
+
+  var anim = coin.animate([
+    { transform:'translate(-50%,-50%) scale(.6)', opacity:0 },
+    { transform:'translate(-50%,-50%) scale(1.15)', opacity:1, offset:.15 },
+    { transform:'translate(calc(-50% + ' + (dx * .55) + 'px), calc(-50% + ' + (dy * .35 - lift) + 'px)) scale(1.05)', opacity:1, offset:.6 },
+    { transform:'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(.55)', opacity:0 }
+  ], {
+    duration: 750 + Math.random() * 220,
+    delay: delay || 0,
+    easing: 'cubic-bezier(.35,.15,.35,1)',
+    fill: 'forwards'
+  });
+
+  anim.onfinish = function(){ coin.remove(); bumpWallet(); };
+  /* belt and braces: if the animation never fires (tab hidden), still clean up */
+  setTimeout(function(){ if (coin.isConnected) coin.remove(); }, 2200);
+}
+
+/* one click anywhere in the page's clickable furniture */
+function collect(e){
+  var el = e.target.closest('[data-coin]');
+  if (!el) return;
+
+  var n = Math.max(1, Math.min(6, parseInt(el.getAttribute('data-coin'), 10) || 1));
+
+  /* the payout, and the raise. The raise is the point. */
+  money += rate * n * 1.5;
+  rate  *= 1 + 0.06 * n;
+  paint();
+
+  if (!reduce){
+    el.classList.remove('squish');
+    void el.offsetWidth;
+    el.classList.add('squish');
+  }
+
+  /* coins launch from the pointer, or from the middle if this was a keyboard press */
+  var x = e.clientX, y = e.clientY;
+  if (!x && !y){
+    var r = el.getBoundingClientRect();
+    x = r.left + r.width / 2;
+    y = r.top  + r.height / 2;
+  }
+  for (var i = 0; i < n; i++){
+    throwCoin(x + (Math.random() * 26 - 13), y + (Math.random() * 18 - 9), i * 55);
+  }
+  if (reduce) bumpWallet();
+}
+doc.addEventListener('click', collect);
+paint();
+
+/* ============================================================
+   THE HUD
+   The wire needs no JS at all — it is position:sticky, so it rides in the flow,
+   greets you at the hero's edge, and pins itself. All that's left is the wallet
+   (early) and the nav (late), on separate thresholds.
+   ============================================================ */
+var navBar     = $('navBar');
+var walletDock = $('walletDock');
+var heroEl     = doc.querySelector('.hero');
+
+/* The wire drops to sit under the nav once the nav appears, so it has to know
+   how tall the nav really is — measured, not a number I guessed at. */
+var navH = 54, wireH = 34;
+function measureNav(){
+  if (navBar){
+    var h = navBar.getBoundingClientRect().height;
+    if (h){ navH = Math.round(h); doc.documentElement.style.setProperty('--nav-h', navH + 'px'); }
+  }
+  var wireEl = $('wire');
+  if (wireEl && wireEl.offsetHeight) wireH = wireEl.offsetHeight;
+}
+measureNav();
+window.addEventListener('load', measureNav);
+
+function hud(){
+  var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
+  var y = window.scrollY;
+  /* wallet arrives as the hero clears — it should be with you for the whole page */
+  if (walletDock) walletDock.classList.toggle('up', y > heroH * 0.7);
+  /* the nav waits. It only turns up once you are properly committed to scrolling. */
+  var navOn = y > heroH + window.innerHeight * 0.5;
+  if (navBar) navBar.classList.toggle('up', navOn);
+  doc.body.classList.toggle('nav-up', navOn);
+}
+window.addEventListener('scroll', hud, {passive:true});
+window.addEventListener('resize', function(){ measureNav(); hud(); });
+hud();
+
+/* The wallet hangs off the scroll rather than riding it: a shove of momentum
+   when you move, a spring pulling it home, and damping so it settles. Bolting it
+   to the viewport would read as chrome — this reads as an object. */
+var wy = 0, wv = 0, lastY = window.scrollY;
+function swayWallet(){
+  if (!walletDock || reduce) return;
+  var y = window.scrollY;
+  /* MINUS, not plus. The wallet has mass, so it lags the viewport rather than
+     leading it: scroll down and it trails upward, scroll up and it sags. Adding
+     the delta drags it the way you're already going, which reads as the thing
+     shoving itself along — the exact opposite of weight. */
+  wv -= (y - lastY) * 0.16;
+  lastY = y;
+  wv -= wy * 0.13;               /* spring back to rest */
+  wv *= 0.86;                    /* damping, or it never stops */
+  wy += wv;
+  if (wy > 32) wy = 32; else if (wy < -32) wy = -32;
+  walletDock.style.transform =
+    'translate3d(0,' + wy.toFixed(2) + 'px,0) rotate(' + (wy * 0.13).toFixed(2) + 'deg)';
+}
+
+/* ============================================================
+   LINE CITY RADIO
+   ============================================================ */
+var radioDock = $('radioDock');
+var radioTravel = function(){};   /* replaced below if the radio exists */
+
+(function(){
+  var radioEl = $('radio');
+  if (!radioEl || !radioDock) return;
+
+  var elPlay  = $('radioPlay'),  elNext  = $('radioNext');
+  var elTitle = $('radioTitle'), elArtist= $('radioArtist');
+  var elNote  = $('radioNote'),  elStat  = $('radioStatus');
+
+  /* ---- audio ---- */
+  var audio = new Audio();
+  audio.preload = 'none';        /* nothing downloads until they ask for it */
+  audio.volume = 0.55;
+
+  /* Opus is roughly half the bytes of the mp3; take it where it's supported and
+     fall back where it isn't (older Safari). Only ever fetches one of the two. */
+  var ext = audio.canPlayType('audio/webm; codecs="opus"') ? '.webm' : '.mp3';
+
+  var track = 0, started = false;
+
+  function load(i, andPlay){
+    track = (i + RADIO.length) % RADIO.length;
+    var t = RADIO[track];
+    audio.src = 'assets/audio/' + t.file + ext;
+    elTitle.textContent  = t.title;
+    elArtist.textContent = t.artist;
+    if (elStat) elStat.textContent = t.title + ' by ' + t.artist;
+    if (andPlay) play();
+  }
+
+  function play(){
+    var p = audio.play();
+    /* .play() rejects if the browser refuses (autoplay policy, missing file).
+       Swallowing that would leave the UI claiming to play in silence. */
+    if (p && p.catch) p.catch(function(){ paint(false); });
+  }
+
+  function paint(on){
+    radioEl.classList.toggle('playing', on);
+    elPlay.textContent = on ? '❚❚' : '▶';
+    elPlay.setAttribute('aria-label', on ? 'Pause Line City Radio' : 'Play Line City Radio');
+  }
+
+  elPlay.addEventListener('click', function(e){
+    e.stopPropagation();                       /* the radio is not a payday */
+    if (!started){ started = true; load(0, true); return; }
+    if (audio.paused) play(); else audio.pause();
+  });
+
+  elNext.addEventListener('click', function(e){
+    e.stopPropagation();
+    started = true;
+    load(track + 1, true);
+  });
+
+  audio.addEventListener('play',  function(){ paint(true); });
+  audio.addEventListener('pause', function(){ paint(false); });
+  audio.addEventListener('ended', function(){ load(track + 1, true); });  /* rolls on forever */
+
+  /* ---- the journey from the hero to the corner ---- */
+  var tx = 0, ty = 0;
+  function measure(){
+    /* Measure where it PARKS (transform cleared), then work out the offset that
+       would put it out on the hero. Doing it the other way round means measuring
+       a box that's already transformed, and the numbers compound every resize. */
+    var prev = radioDock.style.transform;
+    radioDock.style.transform = 'none';
+    var d = radioDock.getBoundingClientRect();
+    radioDock.style.transform = prev;
+
+    var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
+    tx = (window.innerWidth / 2)  - (d.left + d.width / 2);
+    /* 0.82, not 0.74: any higher and it sits on top of the hero's own strapline.
+       Down here it lands over the skyline, which is where it was drawn. */
+    ty = (heroH * 0.82)           - (d.top  + d.height / 2);
+  }
+
+  /* The flight is not rigid. Chasing the scroll exactly is what made it feel
+     bolted on; a spring lets it overshoot its mark, drift past, and drop back —
+     so it looks like it's finding the corner rather than being dragged there. */
+  var rx = 0, rvx = 0, ry = 0, rvy = 0;
+  var rLast = window.scrollY;
+  var settled = false;
+
+  radioTravel = function(){
+    var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
+    var y = window.scrollY;
+
+    /* 0 = out on the hero, 1 = parked in the corner */
+    var p = y / (heroH * 0.78);
+    if (p < 0) p = 0; else if (p > 1) p = 1;
+    var e = p * p * (3 - 2 * p);              /* smoothstep, so it eases in and out */
+    var s = 1.34 - 0.34 * e;                  /* big on the hero, normal in the corner */
+
+    /* where it's SUPPOSED to be */
+    var gx = tx * (1 - e);
+    var gy = ty * (1 - e);
+
+    if (reduce){
+      rx = gx; ry = gy;
+    } else {
+      /* chase the target on a spring, and let the scroll shove it around on the way */
+      var d = y - rLast; rLast = y;
+      rvy += (gy - ry) * 0.14;                /* pulled toward its mark */
+      rvy -= d * 0.09;                        /* the scroll knocks it about (lags, like the wallet) */
+      rvy *= 0.84;                            /* damping */
+      ry  += rvy;
+      rvx += (gx - rx) * 0.12;                /* horizontal is lazier, so it arcs */
+      rvx *= 0.86;
+      rx  += rvx;
+      if (ry - gy >  40) ry = gy + 40; else if (ry - gy < -40) ry = gy - 40;
+    }
+
+    radioDock.style.transform =
+      'translate(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
+    if (elNote) elNote.style.setProperty('--note', (1 - Math.min(1, e * 2.2)).toFixed(2));
+    settled = true;
+  };
+
+  function reset(){
+    measure();
+    /* snap to the mark on first paint / resize — springing in from 0,0 would
+       fling it across the screen on load */
+    var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
+    var p = Math.min(1, Math.max(0, window.scrollY / (heroH * 0.78)));
+    var e = p * p * (3 - 2 * p);
+    rx = tx * (1 - e); ry = ty * (1 - e);
+    rvx = rvy = 0; rLast = window.scrollY;
+    radioTravel();
+  }
+
+  reset();
+  window.addEventListener('resize', reset);
+  window.addEventListener('load',   reset);
+})();
+
+/* ticker pause */
+(function(){
+  var wire = $('wire'), btn = $('wirePause');
+  if (!wire || !btn) return;
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();                       /* pausing the news is not a payday */
+    var paused = wire.classList.toggle('paused');
+    btn.setAttribute('aria-pressed', String(paused));
+    btn.setAttribute('aria-label', paused ? 'Resume news ticker' : 'Pause news ticker');
+    btn.textContent = paused ? '▶' : '❚❚';
+  });
+})();
+
+/* ============================================================
+   REVEALS, PARALLAX, THE FORM
+   ============================================================ */
+(function(){
+  var revs = [].slice.call(doc.querySelectorAll('.rev'));
+
+  if (reduce || !('IntersectionObserver' in window)){
+    revs.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {threshold:.12, rootMargin:'0px 0px -6% 0px'});
+  revs.forEach(function(el){ io.observe(el); });
+
+  /* Backstop. Everything above starts at opacity:0, so if the observer never
+     fires — deep link straight to #managers, page restored mid-scroll, framed,
+     a browser that roots the observer somewhere unexpected — the page would sit
+     there permanently blank. Reveal anything that is plainly on screen, whatever
+     the observer thinks. */
+  var sweep = function(){
+    for (var i = revs.length - 1; i >= 0; i--){
+      var el = revs[i];
+      if (el.classList.contains('in')) { revs.splice(i, 1); continue; }
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight * 0.94 && r.bottom > 0){
+        el.classList.add('in');
+        io.unobserve(el);
+        revs.splice(i, 1);
+      }
+    }
+  };
+  /* Called straight from the scroll handler, deliberately NOT through
+     requestAnimationFrame: rAF is suspended in hidden tabs and throttled in
+     frames, which is exactly where this net has to hold. It walks a list that
+     only ever shrinks, so the cost falls to nothing once the page is revealed. */
+  window.addEventListener('scroll', sweep, {passive:true});
+  window.addEventListener('resize', sweep, {passive:true});
+  window.addEventListener('load', sweep);
+  sweep();
+})();
+
+(function(){
+  var art = $('heroArt');
+  if (!art || reduce) return;
+  var busy = false;
+  window.addEventListener('scroll', function(){
+    if (busy) return;
+    busy = true;
+    requestAnimationFrame(function(){
+      art.style.transform = 'translate3d(0,' + (window.scrollY * 0.22) + 'px,0)';
+      busy = false;
+    });
+  }, {passive:true});
+})();
+
+(function(){
+  var form = $('notify');
+  if (!form) return;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = $('wl-email');
+    if (email && email.value.indexOf('@') < 1){ email.focus(); return; }
+    form.hidden = true;
+    $('wl-fine').hidden = true;
+    $('wl-done').hidden = false;
+    var status = $('wl-status');
+    if (status) status.textContent = 'Placement secured. You are on the waiting list.';
+  });
+})();
+
+})();
+</script>
+</body>
+</html>
