@@ -97,7 +97,9 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
    ============================================================ */
 .nav-bar{
   position:fixed;inset:0 0 auto 0;z-index:60;
-  background:var(--paper);border-bottom:1px solid var(--rule);
+  background:var(--paper);
+  /* no bottom border — the wire sits flush underneath and its own 2px ink top
+     border is the divider. A border here would just be a second line. */
   transform:translateY(-101%);transition:transform .45s cubic-bezier(.22,.9,.3,1);
 }
 .nav-bar.up{transform:none}
@@ -173,9 +175,6 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
   /* the wallet's line, mirrored — the two HUD pieces read as a pair */
   top:clamp(104px,15vh,164px);
   right:clamp(14px,3vw,44px);
-  /* Grow from the RIGHT edge, not the centre. It sits in the same column the whole
-     way up, so scaling about the middle would push it off the side of the screen —
-     the parked margin is only 14px on a narrow viewport. */
   transform-origin:100% 50%;
   will-change:transform;
 }
@@ -263,7 +262,9 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
   border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
   transition:top .45s cubic-bezier(.22,.9,.3,1);
 }
-body.nav-up .wire{top:var(--nav-h,54px)}
+/* minus 1px: the nav's height is fractional, so landing exactly on it leaves a
+   hairline of the page showing through between the two. Overlap instead. */
+body.nav-up .wire{top:calc(var(--nav-h,54px) - 1px)}
 .wire-chip{
   flex:none;display:flex;align-items:center;padding:5px 11px;
   background:var(--terra-ink);color:#fff;
@@ -1341,8 +1342,10 @@ var heroEl     = doc.querySelector('.hero');
 var navH = 54, wireH = 34;
 function measureNav(){
   if (navBar){
+    /* ceil, never round: rounding a 53.4px nav down to 53 leaves the page visible
+       in the 0.4px seam beneath it. Overshooting just tucks the wire under. */
     var h = navBar.getBoundingClientRect().height;
-    if (h){ navH = Math.round(h); doc.documentElement.style.setProperty('--nav-h', navH + 'px'); }
+    if (h){ navH = Math.ceil(h); doc.documentElement.style.setProperty('--nav-h', navH + 'px'); }
   }
   var wireEl = $('wire');
   if (wireEl && wireEl.offsetHeight) wireH = wireEl.offsetHeight;
@@ -1485,7 +1488,6 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
     var p = y / (heroH * 0.78);
     if (p < 0) p = 0; else if (p > 1) p = 1;
     var e = p * p * (3 - 2 * p);              /* smoothstep, so it eases in and out */
-    var s = 1.34 - 0.34 * e;                  /* big on the hero, normal in the corner */
 
     /* where it's SUPPOSED to be */
     var gx = tx * (1 - e);
@@ -1506,8 +1508,10 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
       if (ry - gy >  40) ry = gy + 40; else if (ry - gy < -40) ry = gy - 40;
     }
 
+    /* No scale term. It is the same size on the hero as it is in the corner —
+       it travels, it doesn't grow. */
     radioDock.style.transform =
-      'translate(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
+      'translate(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px)';
     if (elNote) elNote.style.setProperty('--note', (1 - Math.min(1, e * 2.2)).toFixed(2));
     settled = true;
   };
