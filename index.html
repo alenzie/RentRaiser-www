@@ -173,6 +173,10 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
   /* the wallet's line, mirrored — the two HUD pieces read as a pair */
   top:clamp(104px,15vh,164px);
   right:clamp(14px,3vw,44px);
+  /* Grow from the RIGHT edge, not the centre. It sits in the same column the whole
+     way up, so scaling about the middle would push it off the side of the screen —
+     the parked margin is only 14px on a narrow viewport. */
+  transform-origin:100% 50%;
   will-change:transform;
 }
 .radio{
@@ -1448,19 +1452,22 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
   /* ---- the journey from the hero to the corner ---- */
   var tx = 0, ty = 0;
   function measure(){
-    /* Measure where it PARKS (transform cleared), then work out the offset that
-       would put it out on the hero. Doing it the other way round means measuring
-       a box that's already transformed, and the numbers compound every resize. */
-    var prev = radioDock.style.transform;
-    radioDock.style.transform = 'none';
-    var d = radioDock.getBoundingClientRect();
-    radioDock.style.transform = prev;
+    /* Read the PARKED geometry from layout, never from getBoundingClientRect.
+       The rect includes this element's own transform, so measuring it means
+       measuring our own output — and the error compounds on every resize until
+       the hero offset collapses to nothing. Clearing the transform first doesn't
+       reliably help. offsetTop/offsetHeight and the resolved CSS `top` ignore
+       transforms by definition, which is exactly the property we need. */
+    var h = radioDock.offsetHeight;
+    var top = parseFloat(window.getComputedStyle(radioDock).top) || 0;
 
     var heroH = heroEl ? heroEl.offsetHeight : window.innerHeight;
-    tx = (window.innerWidth / 2)  - (d.left + d.width / 2);
+    /* No horizontal travel. It starts in the very column it ends up in and simply
+       rises to the corner — so the eye tracks one axis instead of a diagonal sweep. */
+    tx = 0;
     /* 0.82, not 0.74: any higher and it sits on top of the hero's own strapline.
        Down here it lands over the skyline, which is where it was drawn. */
-    ty = (heroH * 0.82)           - (d.top  + d.height / 2);
+    ty = (heroH * 0.82) - (top + h / 2);
   }
 
   /* The flight is not rigid. Chasing the scroll exactly is what made it feel
