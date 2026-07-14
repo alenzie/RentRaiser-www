@@ -247,6 +247,17 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
   font:600 .82rem/1.25 var(--serif);color:var(--ink);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
+/* A long title ticks like a real deck: rest on the opening (clipped is
+   fine, that's the charm), slide left to read the tail, hold it, slide
+   home, rest again. Only titles that overflow get to dance. */
+.radio-title b{display:inline-block;font-weight:inherit}
+.radio-title.tick{text-overflow:clip}
+.radio-title.tick b{animation:title-tick var(--tick-dur,7s) linear infinite}
+@keyframes title-tick{
+  0%,30%{transform:translateX(0)}
+  55%,75%{transform:translateX(var(--tick,0px))}
+  90%,100%{transform:translateX(0)}
+}
 .radio-artist{
   font:500 .58rem/1.3 var(--sans);letter-spacing:.1em;text-transform:uppercase;
   color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -728,7 +739,7 @@ footer{background:var(--panel);border-top:2px solid var(--ink);padding-block:2.6
       <button class="radio-btn" id="radioPlay" type="button" aria-label="Play Line City Radio">▶</button>
       <span class="radio-eq" id="radioEq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span class="radio-now">
-        <span class="radio-title" id="radioTitle">Check Cashin&rsquo;</span>
+        <span class="radio-title" id="radioTitle"><b>Check Cashin&rsquo;</b></span>
         <span class="radio-artist" id="radioArtist">Lil Flyy</span>
       </span>
       <button class="radio-btn" id="radioNext" type="button" aria-label="Next track">&#9199;</button>
@@ -1489,7 +1500,19 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
     track = (i + RADIO.length) % RADIO.length;
     var t = RADIO[track];
     audio.src = 'assets/audio/' + t.file + ext;
-    elTitle.textContent  = t.title;
+    /* the deck ticks a long title across and home again; short ones sit still */
+    elTitle.innerHTML = '';
+    var tb = doc.createElement('b');
+    tb.textContent = t.title;
+    elTitle.appendChild(tb);
+    var over = tb.scrollWidth - elTitle.clientWidth;
+    if (over > 2 && !reduce){
+      elTitle.style.setProperty('--tick', (-over - 4) + 'px');
+      elTitle.style.setProperty('--tick-dur', Math.max(6, 4 + over / 18).toFixed(1) + 's');
+      elTitle.classList.add('tick');
+    } else {
+      elTitle.classList.remove('tick');
+    }
     elArtist.textContent = t.artist;
     if (elStat) elStat.textContent = t.title + ' by ' + t.artist;
     if (andPlay) play();
