@@ -594,11 +594,13 @@ h1{
   display:grid;grid-template-columns:1fr auto;gap:clamp(2rem,5vw,4rem);align-items:end;
 }
 .ten-pair{display:flex;align-items:flex-end;gap:clamp(0px,1vw,14px);justify-self:end}
+/* the tenants are pressable - they have opinions about that */
+.ten-click{background:none;border:0;padding:0;margin:0;cursor:pointer;display:block;-webkit-tap-highlight-color:transparent}
 .ten-pair img{
   height:clamp(230px,32vw,380px);width:auto;
   animation:float 7s ease-in-out infinite alternate;transform-origin:50% 100%;
 }
-.ten-pair img:last-child{animation-duration:8.4s;animation-delay:-3s}
+.ten-pair .ten-click:last-child img{animation-duration:8.4s;animation-delay:-3s}
 .ten-copy{max-width:46ch}
 .ten-copy p{color:var(--soft);margin-bottom:1rem}
 .ten-copy p:last-of-type{color:#7A7A73}
@@ -957,10 +959,14 @@ footer{background:var(--panel);border-top:2px solid var(--ink);padding-block:2.6
       </div>
 
       <div class="ten-pair rev">
-        <img src="assets/img/char/chris.webp" width="500" height="999" loading="lazy"
-             alt="Chris, a young crow in a hoodie and cut-off shorts, holding a coffee cup that reads 'another day another rent hike'.">
-        <img src="assets/img/char/grace.webp" width="440" height="970" loading="lazy"
-             alt="Grace, a young crow in an oversized sweater with a tote bag reading 'not my problem', holding a coffee cup that reads 'dead inside'.">
+        <button class="ten-click" type="button" data-coin="2" data-sigh="chris"
+                aria-label="Chris, a young crow in a hoodie and cut-off shorts, holding a coffee cup that reads 'another day another rent hike'. Press him and he sighs about it.">
+          <img src="assets/img/char/chris.webp" width="500" height="999" loading="lazy" alt="">
+        </button>
+        <button class="ten-click" type="button" data-coin="2" data-sigh="grace"
+                aria-label="Grace, a young crow in an oversized sweater with a tote bag reading 'not my problem', holding a coffee cup that reads 'dead inside'. Press her and she grunts about it.">
+          <img src="assets/img/char/grace.webp" width="440" height="970" loading="lazy" alt="">
+        </button>
       </div>
     </div>
   </section>
@@ -1379,8 +1385,8 @@ doc.addEventListener('click', function(e){
   var who = el.getAttribute('data-sigh');
   if (!SIGHS[who]) return;
   if (!sighPlayer) sighPlayer = new Audio();
-  /* ?v=4: dual-mono (identical L/R), -20dB masters, pitched up 200 cents */
-  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=4';
+  /* ?v=5: Norm trades his sigh for a higher hmph (350c vs Greg's 300c) */
+  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=5';
   sighPlayer.volume = 0.75;
   sighPlayer.play().catch(function(){ /* autoplay policy or missing file — sigh withheld */ });
 });
