@@ -1436,7 +1436,8 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
   function load(i, andPlay){
     track = (i + RADIO.length) % RADIO.length;
     var t = RADIO[track];
-    audio.src = 'assets/audio/' + t.file + ext;
+    /* ?v=mono busts the immutable asset cache from when these were stereo */
+    audio.src = 'assets/audio/' + t.file + ext + '?v=mono';
     elTitle.textContent  = t.title;
     elArtist.textContent = t.artist;
     if (elStat) elStat.textContent = t.title + ' by ' + t.artist;
