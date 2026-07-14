@@ -1387,7 +1387,7 @@ var heroEl     = doc.querySelector('.hero');
 
 /* The wire drops to sit under the nav once the nav appears, so it has to know
    how tall the nav really is — measured, not a number I guessed at. */
-var navH = 54, wireH = 34;
+var navH = 54, wireH = 34, wireTop = 0;
 function measureNav(){
   if (navBar){
     /* ceil, never round: rounding a 53.4px nav down to 53 leaves the page visible
@@ -1397,6 +1397,14 @@ function measureNav(){
   }
   var wireEl = $('wire');
   if (wireEl && wireEl.offsetHeight) wireH = wireEl.offsetHeight;
+  /* the wire's resting place in the document flow — walk offsetParents rather
+     than reading its rect, because a stuck sticky reports where it's pinned,
+     not where it lives */
+  if (wireEl){
+    var t = 0, el = wireEl;
+    while (el){ t += el.offsetTop; el = el.offsetParent; }
+    wireTop = t;
+  }
 }
 measureNav();
 window.addEventListener('load', measureNav);
@@ -1406,8 +1414,10 @@ function hud(){
   var y = window.scrollY;
   /* wallet arrives as the hero clears — it should be with you for the whole page */
   if (walletDock) walletDock.classList.toggle('up', y > heroH * 0.7);
-  /* the nav waits. It only turns up once you are properly committed to scrolling. */
-  var navOn = y > heroH + window.innerHeight * 0.5;
+  /* the nav turns up at the exact scroll where the wire pins to the top of
+     the screen — the two arrive as one piece of chrome, and the wire's
+     drop-under-the-nav move plays in the same breath */
+  var navOn = wireTop ? y >= wireTop - 1 : y > heroH + window.innerHeight * 0.5;
   if (navBar) navBar.classList.toggle('up', navOn);
   doc.body.classList.toggle('nav-up', navOn);
 }
