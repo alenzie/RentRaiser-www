@@ -1342,9 +1342,8 @@ doc.addEventListener('click', function(e){
   var who = el.getAttribute('data-sigh');
   if (!SIGHS[who]) return;
   if (!sighPlayer) sighPlayer = new Audio();
-  /* ?v=3: dual-mono - identical L/R channels so no playback stack
-     can route these to one speaker */
-  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=3';
+  /* ?v=4: dual-mono (identical L/R), -20dB masters, pitched up 200 cents */
+  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=4';
   sighPlayer.volume = 0.75;
   sighPlayer.play().catch(function(){ /* autoplay policy or missing file — sigh withheld */ });
 });
