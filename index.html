@@ -1505,31 +1505,6 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
   audio.addEventListener('pause', function(){ paint(false); });
   audio.addEventListener('ended', function(){ load(track + 1, true); });  /* rolls on forever */
 
-  /* ---- the front door ----
-     The station is already on when you walk in. Browsers usually veto
-     un-gestured audio, so if play() is refused, the first press of
-     anything - and everything here is pressable - opens the radio
-     instead. Either way, you're in the building, the music's going. */
-  (function autostart(){
-    started = true;
-    load(0, false);
-    var p = audio.play();
-    if (p && p.catch) p.catch(function(){
-      started = false;
-      paint(false);
-      var arm = function(e){
-        cleanup();
-        /* if their first press is the radio itself, its buttons know what to do */
-        if (e && e.target && e.target.closest && e.target.closest('#radio')) return;
-        if (!started){ started = true; load(0, true); }
-      };
-      var cleanup = function(){
-        ['pointerdown','keydown'].forEach(function(t){ doc.removeEventListener(t, arm, true); });
-      };
-      ['pointerdown','keydown'].forEach(function(t){ doc.addEventListener(t, arm, true); });
-    });
-  })();
-
   /* ---- the journey from the hero to the corner ---- */
   var tx = 0, ty = 0;
   function measure(){
