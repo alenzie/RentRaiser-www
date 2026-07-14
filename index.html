@@ -214,6 +214,21 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
 }
 .radio-btn:hover{background:var(--money-soft)}
 .radio-btn:active{transform:translateY(1px)}
+/* the underside: one thin volume slider, the full width of the set */
+.radio-vol{
+  -webkit-appearance:none;appearance:none;display:block;
+  width:calc(100% - 18px);margin:0 9px 8px;height:4px;border-radius:2px;
+  background:linear-gradient(to right,var(--terra) 18%,rgba(26,26,26,.18) 18%);
+  cursor:pointer;
+}
+.radio-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--ink);
+}
+.radio-vol::-moz-range-thumb{
+  width:11px;height:11px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--ink);
+}
 .radio-now{
   display:flex;flex-direction:column;line-height:1.2;
   flex:1;min-width:0;max-width:126px;overflow:hidden;
@@ -703,11 +718,12 @@ footer{background:var(--panel);border-top:2px solid var(--ink);padding-block:2.6
       <button class="radio-btn" id="radioPlay" type="button" aria-label="Play Line City Radio">▶</button>
       <span class="radio-eq" id="radioEq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span class="radio-now">
-        <span class="radio-title" id="radioTitle">Nest Egg</span>
-        <span class="radio-artist" id="radioArtist">Derrick Feathers</span>
+        <span class="radio-title" id="radioTitle">Check Cashin&rsquo;</span>
+        <span class="radio-artist" id="radioArtist">Lil Flyy</span>
       </span>
       <button class="radio-btn" id="radioNext" type="button" aria-label="Next track">&#9199;</button>
     </div>
+    <input class="radio-vol" id="radioVol" type="range" min="0" max="100" value="18" aria-label="Radio volume">
     <p class="radio-note" id="radioNote">Music to raise the rent to.</p>
     <p class="sr" role="status" id="radioStatus"></p>
   </div>
@@ -1042,10 +1058,10 @@ var NORM_QUIPS = [
 
 /* Line City Radio. Corporate music, played straight, which is the joke. */
 var RADIO = [
+  {file:'check-cashin',  title:'Check Cashin’',  artist:'Lil Flyy'},
   {file:'nest-egg',      title:'Nest Egg',       artist:'Derrick Feathers'},
   {file:'raise-em-high', title:'Raise ’Em High', artist:'Roger Raven'},
-  {file:'space-rent',    title:'Space Rent',     artist:'Daft Bird'},
-  {file:'check-cashin',  title:'Check Cashin’',  artist:'Lil Flyy'}
+  {file:'space-rent',    title:'Space Rent',     artist:'Daft Bird'}
 ];
 
 var WIRE = [
@@ -1423,11 +1439,26 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
   var elPlay  = $('radioPlay'),  elNext  = $('radioNext');
   var elTitle = $('radioTitle'), elArtist= $('radioArtist');
   var elNote  = $('radioNote'),  elStat  = $('radioStatus');
+  var elVol   = $('radioVol');
 
   /* ---- audio ---- */
   var audio = new Audio();
   audio.preload = 'none';        /* nothing downloads until they ask for it */
-  audio.volume = 0.55;
+  /* starts low - the station greets you, it doesn't ambush you */
+  audio.volume = elVol ? elVol.value / 100 : 0.18;
+
+  /* ---- the underside volume slider ---- */
+  function paintVol(){
+    if (!elVol) return;
+    var v = elVol.value;
+    elVol.style.background =
+      'linear-gradient(to right,var(--terra) ' + v + '%,rgba(26,26,26,.18) ' + v + '%)';
+  }
+  if (elVol){
+    elVol.addEventListener('input', function(){ audio.volume = elVol.value / 100; paintVol(); });
+    elVol.addEventListener('click', function(e){ e.stopPropagation(); }); /* also not a payday */
+    paintVol();
+  }
 
   /* Opus is roughly half the bytes of the mp3; take it where it's supported and
      fall back where it isn't (older Safari). Only ever fetches one of the two. */
@@ -1473,6 +1504,31 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
   audio.addEventListener('play',  function(){ paint(true); });
   audio.addEventListener('pause', function(){ paint(false); });
   audio.addEventListener('ended', function(){ load(track + 1, true); });  /* rolls on forever */
+
+  /* ---- the front door ----
+     The station is already on when you walk in. Browsers usually veto
+     un-gestured audio, so if play() is refused, the first press of
+     anything - and everything here is pressable - opens the radio
+     instead. Either way, you're in the building, the music's going. */
+  (function autostart(){
+    started = true;
+    load(0, false);
+    var p = audio.play();
+    if (p && p.catch) p.catch(function(){
+      started = false;
+      paint(false);
+      var arm = function(e){
+        cleanup();
+        /* if their first press is the radio itself, its buttons know what to do */
+        if (e && e.target && e.target.closest && e.target.closest('#radio')) return;
+        if (!started){ started = true; load(0, true); }
+      };
+      var cleanup = function(){
+        ['pointerdown','keydown'].forEach(function(t){ doc.removeEventListener(t, arm, true); });
+      };
+      ['pointerdown','keydown'].forEach(function(t){ doc.addEventListener(t, arm, true); });
+    });
+  })();
 
   /* ---- the journey from the hero to the corner ---- */
   var tx = 0, ty = 0;
