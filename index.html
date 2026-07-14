@@ -449,12 +449,6 @@ h1{
   animation:bob 4.6s ease-in-out -2s infinite alternate-reverse;
   transform-origin:22% 100%;   /* grows out of its own tail */
 }
-/* his bubble reaches down and touches him: a long spike of a tail
-   instead of the stock notch, angled at his head */
-.bubble--hero::after{
-  bottom:-34px;left:30px;width:13px;height:40px;
-  transform:rotate(38deg) translateY(-4px);
-}
 /* the quip pop, lifted from NormQuipBubble.gd: 0.3s, starts at 0.3 scale,
    overshoots to 1.15. Replaces the sway for its duration, then the sway resumes. */
 .bubble--hero.pop{animation:qpop .32s cubic-bezier(.3,1.5,.5,1)}
