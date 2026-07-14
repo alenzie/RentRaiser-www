@@ -1373,6 +1373,32 @@ function collect(e){
 doc.addEventListener('click', collect);
 paint();
 
+/* Money makes a sound now. Payouts tick by size — small change, real
+   money, serious money — with a pitch wobble so mashing doesn't sound
+   like a machine gun, and a little pool so overlaps don't cut off.
+   Voiced characters keep their sighs instead; personality outranks coin. */
+var COIN_POOL = [], COIN_IX = 0, COIN_MAX = 4;
+function coinTick(n){
+  var tier = n >= 4 ? 3 : (n >= 2 ? 2 : 1);
+  var a;
+  if (COIN_POOL.length < COIN_MAX){
+    a = new Audio();
+    COIN_POOL.push(a);
+  } else {
+    a = COIN_POOL[COIN_IX = (COIN_IX + 1) % COIN_MAX];
+  }
+  a.src = 'assets/audio/money/coin-' + tier + '.mp3';
+  a.volume = 0.9;
+  if ('preservesPitch' in a) a.preservesPitch = false;
+  a.playbackRate = 0.94 + Math.random() * 0.12;
+  a.play().catch(function(){});
+}
+doc.addEventListener('click', function(e){
+  var el = e.target.closest('[data-coin]');
+  if (!el || el.hasAttribute('data-sigh')) return;
+  coinTick(parseInt(el.getAttribute('data-coin'), 10) || 1);
+});
+
 /* The staff have been asked not to comment. They sigh instead.
    Short recorded sighs, one per crow — click any [data-sigh] and they
    let you know how they feel about it. To voice someone new: drop
