@@ -794,7 +794,7 @@ footer{background:var(--panel);border-top:2px solid var(--ink);padding-block:2.6
                alt="Line City in the game: a dark road running to the horizon across a tiled plain, wireframe cube buildings alongside it, a pencil skyline and a pale sun under a teal sky.">
         </div>
         <div class="chip" aria-hidden="true">+$50 collected!</div>
-        <button class="norm-act" id="normAct" type="button" data-coin="2"
+        <button class="norm-act" id="normAct" type="button" data-coin="2" data-sigh="norm"
                 aria-label="Norm, the tutorial mentor, a scraggly hand-drawn crow in a shirt and loose tie. Hover him and he has something to say about it.">
           <span class="norm-hop">
             <img class="norm-hero" id="normSprite" src="assets/img/norm-happy.webp" width="353" height="654" alt="">
@@ -1096,7 +1096,7 @@ var WIRE = [
   CREW.forEach(function(c, i){
     var r1 = (i % 2 ? 1 : -1) * (0.9 + (i * 0.2));
     html +=
-      '<button class="crow" type="button" data-coin="3" style="--h:' + c.h + 'px;--dur:' + c.dur + 's;--del:' + c.del + 's;--r1:' + (-r1) + 'deg;--r2:' + r1 + 'deg;--rx:' + (r1 * 1.8) + 'deg" aria-label="' + c.n + ', ' + c.role.replace(/&amp;/g,'and') + '. ' + c.say + '">' +
+      '<button class="crow" type="button" data-coin="3" data-sigh="' + c.f + '" style="--h:' + c.h + 'px;--dur:' + c.dur + 's;--del:' + c.del + 's;--r1:' + (-r1) + 'deg;--r2:' + r1 + 'deg;--rx:' + (r1 * 1.8) + 'deg" aria-label="' + c.n + ', ' + c.role.replace(/&amp;/g,'and') + '. ' + c.say + '">' +
         '<span class="bubble crow-say" aria-hidden="true">' + c.say + '</span>' +
         '<span class="crow-hop"><img class="crow-art" src="assets/img/char/' + c.f + '.webp" loading="lazy" alt=""></span>' +
         '<span class="nametag" aria-hidden="true">' + c.n + '</span>' +
@@ -1329,6 +1329,24 @@ function collect(e){
 }
 doc.addEventListener('click', collect);
 paint();
+
+/* The staff have been asked not to comment. They sigh instead.
+   Short recorded sighs, one per crow — click any [data-sigh] and they
+   let you know how they feel about it. To give Linda, Susan or Bud a
+   voice later: drop <name>.mp3 into assets/audio/sighs/ and add the
+   name here. Nothing else to wire. */
+var SIGHS = {greg:1, norm:1, chris:1, grace:1};
+var sighPlayer = null;
+doc.addEventListener('click', function(e){
+  var el = e.target.closest('[data-sigh]');
+  if (!el) return;
+  var who = el.getAttribute('data-sigh');
+  if (!SIGHS[who]) return;
+  if (!sighPlayer) sighPlayer = new Audio();
+  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3';
+  sighPlayer.volume = 0.75;
+  sighPlayer.play().catch(function(){ /* autoplay policy or missing file — sigh withheld */ });
+});
 
 /* ============================================================
    THE HUD
