@@ -1342,8 +1342,9 @@ doc.addEventListener('click', function(e){
   var who = el.getAttribute('data-sigh');
   if (!SIGHS[who]) return;
   if (!sighPlayer) sighPlayer = new Audio();
-  /* ?v=2: -12dB masters (and a Grace who actually makes sound) */
-  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=2';
+  /* ?v=3: dual-mono - identical L/R channels so no playback stack
+     can route these to one speaker */
+  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=3';
   sighPlayer.volume = 0.75;
   sighPlayer.play().catch(function(){ /* autoplay policy or missing file — sigh withheld */ });
 });
@@ -1437,8 +1438,8 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
   function load(i, andPlay){
     track = (i + RADIO.length) % RADIO.length;
     var t = RADIO[track];
-    /* ?v=mono busts the immutable asset cache from when these were stereo */
-    audio.src = 'assets/audio/' + t.file + ext + '?v=mono';
+    /* ?v=dualmono busts the immutable asset cache (stereo era, then 1ch era) */
+    audio.src = 'assets/audio/' + t.file + ext + '?v=dualmono';
     elTitle.textContent  = t.title;
     elArtist.textContent = t.artist;
     if (elStat) elStat.textContent = t.title + ' by ' + t.artist;
