@@ -563,7 +563,7 @@ h1{
   100%{transform:translateY(0)     scale(1,1)}
 }
 .crow-say{
-  position:absolute;bottom:calc(100% - 6px);left:50%;
+  position:absolute;bottom:calc(100% + 10px);left:50%;
   width:max-content;max-width:200px;
   transform:translate(-50%,8px) scale(.92);
   transform-origin:50% 100%;
@@ -1571,7 +1571,9 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
 
   elNext.addEventListener('click', function(e){
     e.stopPropagation();
-    started = true;
+    /* the first press of ANY control powers the station on at the top of
+       the playlist - it shouldn't skip a song nobody's heard yet */
+    if (!started){ started = true; load(0, true); return; }
     load(track + 1, true);
   });
 
