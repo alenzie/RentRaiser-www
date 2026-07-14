@@ -1332,10 +1332,9 @@ paint();
 
 /* The staff have been asked not to comment. They sigh instead.
    Short recorded sighs, one per crow — click any [data-sigh] and they
-   let you know how they feel about it. To give Linda, Susan or Bud a
-   voice later: drop <name>.mp3 into assets/audio/sighs/ and add the
-   name here. Nothing else to wire. */
-var SIGHS = {greg:1, norm:1, chris:1, grace:1};
+   let you know how they feel about it. To voice someone new: drop
+   <name>.mp3 into assets/audio/sighs/ and add the name here. */
+var SIGHS = {greg:1, norm:1, linda:1, susan:1, bud:1, chris:1, grace:1};
 var sighPlayer = null;
 doc.addEventListener('click', function(e){
   var el = e.target.closest('[data-sigh]');
