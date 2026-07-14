@@ -1385,8 +1385,8 @@ doc.addEventListener('click', function(e){
   var who = el.getAttribute('data-sigh');
   if (!SIGHS[who]) return;
   if (!sighPlayer) sighPlayer = new Audio();
-  /* ?v=5: Norm trades his sigh for a higher hmph (350c vs Greg's 300c) */
-  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=5';
+  /* ?v=6: Norm gets his sigh back - trimmed, +300 cents */
+  sighPlayer.src = 'assets/audio/sighs/' + who + '.mp3?v=6';
   sighPlayer.volume = 0.75;
   sighPlayer.play().catch(function(){ /* autoplay policy or missing file — sigh withheld */ });
 });
