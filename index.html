@@ -196,6 +196,16 @@ h3{font:600 1.08rem/1.25 var(--serif);color:var(--ink)}
   from{transform:translate(-4px,-5px) rotate(-1.15deg)}
   to  {transform:translate(5px,6px)   rotate(1.25deg)}
 }
+/* two polite pulses at the door: look, there's a radio.
+   A shadow ring, not a scale - rdrift owns transform. */
+@keyframes radio-pulse{
+  0%,100%{box-shadow:0 4px 0 var(--ink)}
+  50%{box-shadow:0 4px 0 var(--ink),0 0 0 11px color-mix(in srgb,var(--terra) 40%,transparent)}
+}
+.radio.pulse{
+  animation:rdrift 11s ease-in-out infinite alternate,
+            radio-pulse .7s ease-in-out .9s 2;
+}
 .radio-chip{
   display:flex;align-items:center;justify-content:center;
   padding:5px 12px;
@@ -1504,6 +1514,16 @@ var radioTravel = function(){};   /* replaced below if the radio exists */
   audio.addEventListener('play',  function(){ paint(true); });
   audio.addEventListener('pause', function(){ paint(false); });
   audio.addEventListener('ended', function(){ load(track + 1, true); });  /* rolls on forever */
+
+  /* announce yourself once, then never again */
+  if (!reduce){
+    radioEl.classList.add('pulse');
+    radioEl.addEventListener('animationend', function h(e){
+      if (e.animationName !== 'radio-pulse') return;
+      radioEl.classList.remove('pulse');
+      radioEl.removeEventListener('animationend', h);
+    });
+  }
 
   /* ---- the journey from the hero to the corner ---- */
   var tx = 0, ty = 0;
