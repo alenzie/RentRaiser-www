@@ -445,9 +445,15 @@ h1{
   transform:rotate(45deg) translateY(-4px);
 }
 .bubble--hero{
-  left:-30%;bottom:63%;
+  left:-30%;bottom:50%;
   animation:bob 4.6s ease-in-out -2s infinite alternate-reverse;
   transform-origin:22% 100%;   /* grows out of its own tail */
+}
+/* his bubble reaches down and touches him: a long spike of a tail
+   instead of the stock notch, angled at his head */
+.bubble--hero::after{
+  bottom:-34px;left:30px;width:13px;height:40px;
+  transform:rotate(38deg) translateY(-4px);
 }
 /* the quip pop, lifted from NormQuipBubble.gd: 0.3s, starts at 0.3 scale,
    overshoots to 1.15. Replaces the sway for its duration, then the sway resumes. */
@@ -1456,10 +1462,10 @@ function hud(){
   var y = window.scrollY;
   /* wallet arrives as the hero clears — it should be with you for the whole page */
   if (walletDock) walletDock.classList.toggle('up', y > heroH * 0.7);
-  /* the nav turns up at the exact scroll where the wire pins to the top of
-     the screen — the two arrive as one piece of chrome, and the wire's
-     drop-under-the-nav move plays in the same breath */
-  var navOn = wireTop ? y >= wireTop - 1 : y > heroH + window.innerHeight * 0.5;
+  /* the nav slides in a beat before the wire reaches the top and catches
+     it on the way up - the ticker docks under the nav's bottom edge and
+     never spends a frame as the highest thing on the page */
+  var navOn = wireTop ? y >= wireTop - navH - 160 : y > heroH + window.innerHeight * 0.5;
   if (navBar) navBar.classList.toggle('up', navOn);
   doc.body.classList.toggle('nav-up', navOn);
 }
